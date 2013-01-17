@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+
+require 'rory'
+
+command = ARGV.shift
+
+case command
+when 'console'
+  require 'irb'
+  ARGV.shift
+  IRB.start
+else
+  puts "Usage: rory console"
+end
