@@ -31,6 +31,10 @@ module Rory
       end
     end
 
+    def spin_up
+      connect_db
+    end
+
     def connect_db(environment = ENV['RORY_STAGE'])
       @db_config = YAML.load_file('config/database.yml')
       @db = Sequel.connect(@db_config[environment.to_s])

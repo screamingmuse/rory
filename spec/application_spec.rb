@@ -29,4 +29,11 @@ describe Rory::Application do
       ].inspect
     end
   end
+
+  describe "#spin_up" do
+    it "connects the database" do
+      Rory::Application.any_instance.should_receive(:connect_db)
+      Rory::Application.spin_up
+    end
+  end
 end
