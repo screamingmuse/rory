@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = "rory"
-  s.version = "0.0.0"
+  s.version = "0.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Ravi Gadad"]
@@ -33,9 +33,12 @@ Gem::Specification.new do |s|
     "lib/rory/dispatcher.rb",
     "lib/rory/presenter.rb",
     "lib/rory/support.rb",
+    "lib/rory/tasks.rb",
     "lib/tasks/db.rake",
+    "lib/tasks/rory.rake",
     "rory.gemspec",
-    "spec/rory_spec.rb",
+    "spec/application_spec.rb",
+    "spec/dispatcher_spec.rb",
     "spec/spec_helper.rb"
   ]
   s.homepage = "http://github.com/ravigadad/rory"
