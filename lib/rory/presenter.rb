@@ -1,6 +1,8 @@
 require 'erb'
 
 module Rory
+  # Interface for Presenter class.  Subclass this to create presenters
+  # with actions that will be called by the Dispatcher when a route matches.
   class Presenter
     def initialize(request)
       @request = request
@@ -23,7 +25,8 @@ module Rory
 
     def present
       # if a method exists on the presenter for the requested action, call it.
-      self.send(@route[:action]) if self.respond_to?(@route[:action])
+      action = @route[:action]
+      self.send(action) if self.respond_to?(action)
 
       if @response
         # that method may have resulted in a response already being generated

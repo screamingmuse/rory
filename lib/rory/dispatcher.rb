@@ -1,4 +1,6 @@
 module Rory
+  # The dispatcher takes care of sending an incoming request to the
+  # appropriate presenter, after examining the routes.
   class Dispatcher
     def initialize(env)
       @request = env.dup
@@ -13,7 +15,7 @@ module Rory
         match = route_hash[:regex].match(path)
       end
       if route
-        symbolized_param_names = match.names.map { |n| n.to_sym }
+        symbolized_param_names = match.names.map { |name| name.to_sym }
         route[:params] = Hash[symbolized_param_names.zip(match.captures)]
       end
       route

@@ -1,4 +1,6 @@
 module Rory
+  # Support methods for utility functionality such as string modification -
+  # could also be accomplished by monkey-patching String class.
   module Support
     module_function
 

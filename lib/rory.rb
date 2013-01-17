@@ -13,12 +13,12 @@ module Rory
 
     def autoload_all_files
       (
-       Dir[File.join(root, 'models', '*.rb')] +
-       Dir[File.join(root, 'presenters', '*.rb')] +
-       Dir[File.join(root, 'helpers', '*.rb')]
+       Dir[File.join(@root, 'models', '*.rb')] +
+       Dir[File.join(@root, 'presenters', '*.rb')] +
+       Dir[File.join(@root, 'helpers', '*.rb')]
       ).each do |path|
         path = File.expand_path(path)
-        name = File.basename(path).sub(/(.*)\.rb$/) { $1 }
+        name = File.basename(path).sub(/(.*)\.rb$/, '\1')
         name = Rory::Support.camelize(name)
         Object.autoload name.to_sym, path
       end

@@ -1,6 +1,9 @@
 require 'logger'
 
 module Rory
+  # Main application superclass.  Applications should subclass this class,
+  # but currently no additional configuration is needed - just run '#spin_up'
+  # to connect the database so Sequel can do its magic.
   class Application
     attr_reader :db, :db_config
 
