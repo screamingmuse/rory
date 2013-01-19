@@ -1,7 +1,15 @@
 require 'spec_helper'
 
 describe Rory::Application do
-  describe "#connect_db" do
+  describe ".call" do
+    it "forwards arg to new dispatcher, and calls dispatch" do
+      dispatcher = stub(:dispatch => :expected)
+      Rory::Dispatcher.should_receive(:new).with(:env).and_return(dispatcher)
+      Rory::Application.call(:env).should == :expected
+    end
+  end
+
+  describe ".connect_db" do
     it "sets up sequel connection to DB from YAML file" do
       config = { 'development' => :expected }
       YAML.stub!(:load_file).with('config/database.yml').and_return(config)
@@ -10,7 +18,7 @@ describe Rory::Application do
     end
   end
 
-  describe "#routes" do
+  describe ".routes" do
     it "generates a routing table from route configuration" do
       config = {
         'foo/:id/bar' => 'foo#bar',
@@ -30,7 +38,7 @@ describe Rory::Application do
     end
   end
 
-  describe "#spin_up" do
+  describe ".spin_up" do
     it "connects the database" do
       Rory::Application.any_instance.should_receive(:connect_db)
       Rory::Application.spin_up

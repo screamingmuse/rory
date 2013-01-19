@@ -1,17 +1,27 @@
 require 'spec_helper'
 
-class DummyPresenter
-  def initialize(args)
-    @args = args
-  end
-
-  def present
-    @args[:present_called] = true
-    @args
-  end
-end
-
 describe Rory::Dispatcher do
+  describe "#redirect" do
+    it "redirects to given path if path has scheme" do
+      dispatcher = Rory::Dispatcher.new({})
+      redirection = dispatcher.redirect('http://example.example')
+      redirection[0..1].should == [
+        302, {'Content-type' => 'text/html', 'Location'=> 'http://example.example' }
+      ]
+    end
+
+    it "adds request host and scheme and redirects if path has no scheme" do
+      dispatcher = Rory::Dispatcher.new({
+        'rack.url_scheme' => 'happy',
+        'HTTP_HOST' => 'somewhere.yay'
+      })
+      redirection = dispatcher.redirect('/example')
+      redirection[0..1].should == [
+        302, {'Content-type' => 'text/html', 'Location'=> 'happy://somewhere.yay/example' }
+      ]
+    end
+  end
+
   describe "#dispatch" do
     it "renders a 404 if the requested path is invalid" do
       @dispatcher = Rory::Dispatcher.new({})
@@ -22,14 +32,14 @@ describe Rory::Dispatcher do
     it "instantiates a presenter with the parsed request and calls present" do
       @dispatcher = Rory::Dispatcher.new({ :whatever => :yay })
       route = {
-        :presenter => 'dummy'
+        :presenter => 'stub'
       }
       @dispatcher.stub(:get_route).and_return(route)
       @dispatcher.dispatch.should == {
         :whatever => :yay,
         :route => route,
         :dispatcher => @dispatcher,
-        :present_called => true
+        :present_called => true # see StubPresenter in /spec/fixture_app
       }
     end
   end
