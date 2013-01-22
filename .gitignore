@@ -1,6 +1,3 @@
-# rdoc generated
-rdoc
-
 # yard generated
 doc
 .yardoc
@@ -8,13 +5,13 @@ doc
 # bundler
 .bundle
 
-# jeweler generated
-pkg
-
 # OS/IDE specific
 .DS_Store
 *~
 *.swp
 
 # testing generated
-log
+log/*.log
+
+# rbfu/rvm/rbenv version file
+.ruby-version
