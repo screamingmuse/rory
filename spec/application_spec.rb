@@ -23,7 +23,7 @@ describe Rory::Application do
       config = {
         'foo/:id/bar' => 'foo#bar',
         'foo' => 'monkeys',
-        'this/:path/is/:awesome' => 'awesome#rad'
+        'this/:path/is/:very_awesome' => 'awesome#rad'
       }
       YAML.stub!(:load_file).with('config/routes.yml').and_return(config)
 
@@ -31,9 +31,9 @@ describe Rory::Application do
       # won't be equal, despite appearing the same - this is because the Regexes
       # are different objects.
       Rory::Application.routes.inspect.should == [
-        { :presenter => 'foo', :action => 'bar', :regex => /^foo\/(?<id>\w+)\/bar$/},
+        { :presenter => 'foo', :action => 'bar', :regex => /^foo\/(?<id>[^\/]+)\/bar$/},
         { :presenter => 'monkeys', :action => nil, :regex => /^foo$/},
-        { :presenter => 'awesome', :action => 'rad', :regex => /^this\/(?<path>\w+)\/is\/(?<awesome>\w+)$/}
+        { :presenter => 'awesome', :action => 'rad', :regex => /^this\/(?<path>[^\/]+)\/is\/(?<very_awesome>[^\/]+)$/}
       ].inspect
     end
   end

@@ -23,7 +23,7 @@ module Rory
       @routes ||= begin
         config_routes_hash = YAML.load_file('config/routes.yml')
         config_routes_hash.map do |mask, target|
-          regex = /^#{mask.gsub(/:(\w+)/, "(?<\\1>\\w+)")}$/
+          regex = /^#{mask.gsub(/:([\w_]+)/, "(?<\\1>\[\^\\\/\]+)")}$/
           presenter, action = target.split('#')
           {
             :presenter => presenter,

@@ -56,7 +56,7 @@ describe Rory::Dispatcher do
         {
           :presenter => 'awesome',
           :action => 'rad',
-          :regex => /^this\/(?<path>\w+)\/is\/(?<awesome>\w+)$/
+          :regex => /^this\/(?<path>[^\/]+)\/is\/(?<very_awesome>[^\/]+)$/
         }
       ])
     end
@@ -71,13 +71,13 @@ describe Rory::Dispatcher do
     end
 
     it "assigns named matches to params hash" do
-      @dispatcher.get_route('this/thing/is/wicked').should == {
+      @dispatcher.get_route('this/some-thing_or-other/is/wicked').should == {
         :presenter => 'awesome',
         :action => 'rad',
-        :regex => /^this\/(?<path>\w+)\/is\/(?<awesome>\w+)$/,
+        :regex => /^this\/(?<path>[^\/]+)\/is\/(?<very_awesome>[^\/]+)$/,
         :params => {
-          :path => 'thing',
-          :awesome => 'wicked'
+          :path => 'some-thing_or-other',
+          :very_awesome => 'wicked'
         }
       }
     end
