@@ -6,6 +6,7 @@ module Rory
   # to connect the database so Sequel can do its magic.
   class Application
     attr_reader :db, :db_config
+    attr_accessor :config_path
 
     class << self
       private :new
@@ -19,9 +20,13 @@ module Rory
       end
     end
 
+    def initialize
+      @config_path = File.join(Rory.root, 'config')
+    end
+
     def routes
       @routes ||= begin
-        config_routes_hash = YAML.load_file('config/routes.yml')
+        config_routes_hash = load_config_data(:routes)
         config_routes_hash.map do |mask, target|
           regex = /^#{mask.gsub(/:([\w_]+)/, "(?<\\1>\[\^\\\/\]+)")}$/
           presenter, action = target.split('#')
@@ -34,12 +39,22 @@ module Rory
       end
     end
 
+    def configure
+      yield self
+    end
+
     def spin_up
       connect_db
     end
 
+    def load_config_data(config_type)
+      YAML.load_file(
+        File.expand_path(File.join(config_path, "#{config_type}.yml"))
+      )
+    end
+
     def connect_db(environment = ENV['RORY_STAGE'])
-      @db_config = YAML.load_file('config/database.yml')
+      @db_config = load_config_data(:database)
       @db = Sequel.connect(@db_config[environment.to_s])
       @db.loggers << logger
     end

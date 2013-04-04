@@ -1,6 +1,21 @@
 require 'spec_helper'
 
 describe Rory::Application do
+  describe ".configure" do
+    it 'yields the given block to self' do
+      Rory::Application.configure do |c|
+        c.should == Rory::Application.instance
+      end
+    end
+  end
+
+  describe '.config_path' do
+    it 'is set to {Rory.root}/config by default' do
+      Rory::Application.config_path.should ==
+        File.join(Rory.root, 'config')
+    end
+  end
+
   describe ".call" do
     it "forwards arg to new dispatcher, and calls dispatch" do
       dispatcher = stub(:dispatch => :expected)
@@ -9,10 +24,20 @@ describe Rory::Application do
     end
   end
 
+  describe ".load_config_data" do
+    it "returns parsed yaml file with given name from directory at config_path" do
+      Rory::Application.any_instance.stub(:config_path).and_return('Africa the Great')
+      YAML.stub!(:load_file).with(
+        File.expand_path(File.join('Africa the Great', 'foo_type.yml'))).
+        and_return(:oscar_the_grouch_takes_a_nap)
+      Rory::Application.load_config_data(:foo_type).should == :oscar_the_grouch_takes_a_nap
+    end
+  end
+
   describe ".connect_db" do
     it "sets up sequel connection to DB from YAML file" do
       config = { 'development' => :expected }
-      YAML.stub!(:load_file).with('config/database.yml').and_return(config)
+      Rory::Application.any_instance.stub(:load_config_data).with(:database).and_return(config)
       Sequel.should_receive(:connect).with(:expected).and_return(stub(:loggers => []))
       Rory::Application.connect_db('development')
     end
@@ -25,7 +50,7 @@ describe Rory::Application do
         'foo' => 'monkeys',
         'this/:path/is/:very_awesome' => 'awesome#rad'
       }
-      YAML.stub!(:load_file).with('config/routes.yml').and_return(config)
+      Rory::Application.any_instance.stub(:load_config_data).with(:routes).and_return(config)
 
       # note: we're comparing the inspected arrays here because the arrays
       # won't be equal, despite appearing the same - this is because the Regexes
