@@ -8,4 +8,5 @@ group :development do
   gem 'rspec'
   gem 'yard'
   gem 'reek'
+  gem 'debugger'
 end

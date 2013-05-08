@@ -22,6 +22,17 @@ describe Rory::Dispatcher do
     end
   end
 
+  describe "#parse_query" do
+    subject {Rory::Dispatcher.new({})}
+    it "converts query string to hash" do
+      subject.parse_query('one=1&two=2').should == {'one' => '1', 'two' => '2'}
+    end
+
+    it 'returns an empty hash if nothing is found' do
+      subject.parse_query('').should == {}
+    end
+  end
+
   describe "#dispatch" do
     it "renders a 404 if the requested path is invalid" do
       @dispatcher = Rory::Dispatcher.new({})
@@ -38,6 +49,7 @@ describe Rory::Dispatcher do
       @dispatcher.dispatch.should == {
         :whatever => :yay,
         :route => route,
+        :params => {},
         :dispatcher => @dispatcher,
         :present_called => true # see StubPresenter in /spec/fixture_app
       }
@@ -66,7 +78,6 @@ describe Rory::Dispatcher do
         :presenter => 'monkeys',
         :action => nil,
         :regex => /^foo$/,
-        :params => {}
       }
     end
 
@@ -75,11 +86,9 @@ describe Rory::Dispatcher do
         :presenter => 'awesome',
         :action => 'rad',
         :regex => /^this\/(?<path>[^\/]+)\/is\/(?<very_awesome>[^\/]+)$/,
-        :params => {
-          :path => 'some-thing_or-other',
-          :very_awesome => 'wicked'
-        }
       }
+
+      @dispatcher.request[:params].should == {:path=>"some-thing_or-other", :very_awesome=>"wicked"}
     end
   end
 end

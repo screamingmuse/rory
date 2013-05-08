@@ -1,5 +1,6 @@
 require 'logger'
 
+
 module Rory
   # Main application superclass.  Applications should subclass this class,
   # but currently no additional configuration is needed - just run '#spin_up'

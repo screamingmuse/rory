@@ -7,7 +7,7 @@ module Rory
     def initialize(request)
       @request = request
       @route = request[:route]
-      @params = @route[:params]
+      @params = request[:params]
     end
 
     def route_template
