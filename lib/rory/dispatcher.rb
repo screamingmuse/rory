@@ -3,32 +3,26 @@ module Rory
   # appropriate presenter, after examining the routes.
   class Dispatcher
     attr_reader :request
-    def initialize(env)
-      @request = env.dup
-      @request[:path] = env['PATH_INFO'][1..-1] if env['PATH_INFO']
+    def initialize(rack_request)
+      @request = rack_request
       @request[:route] = nil
-      @request[:params] = parse_query(env['QUERY_STRING'])
       @request[:dispatcher] = self
-    end
-
-    def parse_query(query_string)
-      Rack::Utils.parse_query(query_string.to_s)
     end
 
     def get_route(path)
       match = nil
       route = Rory::Application.routes.detect do |route_hash|
-        match = route_hash[:regex].match(path)
+        match = route_hash[:regex].match(path[1..-1])
       end
       if route
         symbolized_param_names = match.names.map { |name| name.to_sym }
-        @request[:params].merge! Hash[symbolized_param_names.zip(match.captures)]
+        @request.params.merge! Hash[symbolized_param_names.zip(match.captures)]
       end
       route
     end
 
     def dispatch
-      @request[:route] = get_route(@request[:path])
+      @request[:route] = get_route(@request.path)
 
       if @request[:route]
         presenter_name = Rory::Support.camelize("#{@request[:route][:presenter]}_presenter")
@@ -42,7 +36,7 @@ module Rory
 
     def redirect(path = '/')
       unless path =~ /\:\/\//
-        path = "#{@request['rack.url_scheme']}://#{@request['HTTP_HOST']}#{path}"
+        path = "#{@request.scheme}://#{@request.host_with_port}#{path}"
       end
       return [ 302, {'Content-type' => 'text/html', 'Location'=> path }, ['Redirecting...'] ]
     end

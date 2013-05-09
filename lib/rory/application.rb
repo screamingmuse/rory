@@ -61,7 +61,7 @@ module Rory
     end
 
     def call(env)
-      Rory::Dispatcher.new(env).dispatch
+      Rory::Dispatcher.new(Rack::Request.new(env)).dispatch
     end
 
     def logger

@@ -19,7 +19,9 @@ describe Rory::Application do
   describe ".call" do
     it "forwards arg to new dispatcher, and calls dispatch" do
       dispatcher = stub(:dispatch => :expected)
-      Rory::Dispatcher.should_receive(:new).with(:env).and_return(dispatcher)
+      rack_request = double
+      Rack::Request.stub(:new).with(:env).and_return(rack_request)
+      Rory::Dispatcher.should_receive(:new).with(rack_request).and_return(dispatcher)
       Rory::Application.call(:env).should == :expected
     end
   end

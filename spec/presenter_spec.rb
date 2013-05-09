@@ -8,6 +8,8 @@ describe Rory::Presenter do
         :action => 'letsgo'
       }
     }
+
+    @request.stub(:params)
   end
 
   describe "#render" do
