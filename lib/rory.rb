@@ -11,14 +11,19 @@ module Rory
   extend self
 
   attr_accessor :root
+  attr_accessor :autoload_paths
+
+  def add_autoload_paths(paths)
+    @autoload_paths ||= []
+    @autoload_paths += paths
+  end
 
   def autoload_all_files
-    (
-     Dir[File.join(@root, 'models', '*.rb')] +
-     Dir[File.join(@root, 'presenters', '*.rb')] +
-     Dir[File.join(@root, 'helpers', '*.rb')]
-    ).each do |path|
-      autoload_file(path)
+    paths = (@autoload_paths || []) + %w(models presenters helpers)
+    paths.each do |path|
+      Dir[File.join(@root, path, '*.rb')].each do |file|
+        autoload_file file
+      end
     end
   end
 
