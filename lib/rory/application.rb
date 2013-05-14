@@ -54,10 +54,6 @@ module Rory
       )
     end
 
-    def connection
-      @db
-    end
-
     def connect_db(environment = ENV['RORY_STAGE'])
       @db_config = load_config_data(:database)
       @db = Sequel.connect(@db_config[environment.to_s])

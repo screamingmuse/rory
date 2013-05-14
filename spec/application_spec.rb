@@ -45,17 +45,6 @@ describe Rory::Application do
     end
   end
 
-  describe ".connection" do
-    it "returns established Sequel connection" do
-      config = { 'development' => :expected }
-      Rory::Application.any_instance.stub(:load_config_data).with(:database).and_return(config)
-      db_connection = double(:loggers => [])
-      Sequel.stub(:connect).with(:expected).and_return(db_connection)
-      Rory::Application.connect_db('development')
-      Rory::Application.connection.should == db_connection
-    end
-  end
-
   describe ".routes" do
     it "generates a routing table from route configuration" do
       config = {
