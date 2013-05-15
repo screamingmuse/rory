@@ -32,9 +32,11 @@ EOF
   s.add_runtime_dependency 'rack'
   s.add_runtime_dependency 'sequel'
   s.add_runtime_dependency 'thin'
+  s.add_runtime_dependency 'rake'
 
   s.add_development_dependency 'rspec'
   s.add_development_dependency 'yard'
   s.add_development_dependency 'reek'
+  s.add_development_dependency 'debugger'
 end
 

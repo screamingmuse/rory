@@ -1,3 +1,12 @@
+PATH
+  remote: .
+  specs:
+    rory (0.2.1)
+      rack
+      rake
+      sequel
+      thin
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -43,10 +52,7 @@ PLATFORMS
 
 DEPENDENCIES
   debugger
-  rack
-  rake
   reek
+  rory!
   rspec
-  sequel
-  thin
   yard
