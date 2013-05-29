@@ -66,6 +66,7 @@ module Rory
 
     def logger
       @logger ||= begin
+        Dir.mkdir('log') unless File.exists?('log')
         file = File.open(File.join('log', "#{ENV['RORY_STAGE']}.log"), 'a')
         Logger.new(file)
       end
