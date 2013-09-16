@@ -1,6 +1,6 @@
 module Rory
   # The dispatcher takes care of sending an incoming request to the
-  # appropriate presenter, after examining the routes.
+  # appropriate controller, after examining the routes.
   class Dispatcher
     attr_reader :request
     def initialize(rack_request)
@@ -9,10 +9,11 @@ module Rory
       @request[:dispatcher] = self
     end
 
-    def get_route(path)
+    def get_route(path, method)
       match = nil
       route = Rory::Application.routes.detect do |route_hash|
         match = route_hash[:regex].match(path[1..-1])
+        match && (route_hash[:methods].nil? || route_hash[:methods].include?(method.to_sym))
       end
       if route
         symbolized_param_names = match.names.map { |name| name.to_sym }
@@ -22,13 +23,13 @@ module Rory
     end
 
     def dispatch
-      @request[:route] = get_route(@request.path)
+      @request[:route] = get_route(@request.path, @request.request_method.downcase)
 
       if @request[:route]
-        presenter_name = Rory::Support.camelize("#{@request[:route][:presenter]}_presenter")
-        presenter_class = Object.const_get(presenter_name)
-        presenter = presenter_class.new(@request)
-        presenter.present
+        controller_name = Rory::Support.camelize("#{@request[:route][:controller]}_controller")
+        controller_class = Object.const_get(controller_name)
+        controller = controller_class.new(@request)
+        controller.present
       else
         render_404
       end

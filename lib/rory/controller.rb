@@ -1,9 +1,9 @@
 require 'erb'
 
 module Rory
-  # Interface for Presenter class.  Subclass this to create presenters
+  # Interface for Controller class.  Subclass this to create controllers
   # with actions that will be called by the Dispatcher when a route matches.
-  class Presenter
+  class Controller
     def initialize(request)
       @request = request
       @route = request[:route]
@@ -11,7 +11,7 @@ module Rory
     end
 
     def route_template
-      "#{@route[:presenter]}/#{@route[:action]}"
+      "#{@route[:controller]}/#{@route[:action]}"
     end
 
     def render(template)
@@ -24,7 +24,7 @@ module Rory
     end
 
     def present
-      # if a method exists on the presenter for the requested action, call it.
+      # if a method exists on the controller for the requested action, call it.
       action = @route[:action]
       self.send(action) if self.respond_to?(action)
 

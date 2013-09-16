@@ -5,7 +5,7 @@ require 'sequel'
 require 'rory/application'
 require 'rory/dispatcher'
 require 'rory/support'
-require 'rory/presenter'
+require 'rory/controller'
 
 module Rory
   extend self
@@ -19,7 +19,7 @@ module Rory
   end
 
   def autoload_all_files
-    paths = (@autoload_paths || []) + %w(models presenters helpers)
+    paths = (@autoload_paths || []) + %w(models controllers helpers)
     paths.each do |path|
       Dir[File.join(@root, path, '*.rb')].each do |file|
         autoload_file file

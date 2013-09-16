@@ -47,20 +47,13 @@ describe Rory::Application do
 
   describe ".routes" do
     it "generates a routing table from route configuration" do
-      config = {
-        'foo/:id/bar' => 'foo#bar',
-        'foo' => 'monkeys',
-        'this/:path/is/:very_awesome' => 'awesome#rad'
-      }
-      Rory::Application.any_instance.stub(:load_config_data).with(:routes).and_return(config)
-
       # note: we're comparing the inspected arrays here because the arrays
       # won't be equal, despite appearing the same - this is because the Regexes
       # are different objects.
       Rory::Application.routes.inspect.should == [
-        { :presenter => 'foo', :action => 'bar', :regex => /^foo\/(?<id>[^\/]+)\/bar$/},
-        { :presenter => 'monkeys', :action => nil, :regex => /^foo$/},
-        { :presenter => 'awesome', :action => 'rad', :regex => /^this\/(?<path>[^\/]+)\/is\/(?<very_awesome>[^\/]+)$/}
+        { :controller => 'foo', :action => 'bar', :regex => /^foo\/(?<id>[^\/]+)\/bar$/, :methods => [:get, :post] },
+        { :controller => 'monkeys', :action => nil, :regex => /^foo$/, :methods => [:put] },
+        { :controller => 'awesome', :action => 'rad', :regex => /^this\/(?<path>[^\/]+)\/is\/(?<very_awesome>[^\/]+)$/}
       ].inspect
     end
   end

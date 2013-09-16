@@ -1,4 +1,4 @@
-class StubPresenter
+class StubController
   def initialize(args)
     @args = args
   end

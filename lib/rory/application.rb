@@ -1,5 +1,5 @@
 require 'logger'
-
+require 'rory/route_mapper'
 
 module Rory
   # Main application superclass.  Applications should subclass this class,
@@ -25,19 +25,15 @@ module Rory
       @config_path = File.join(Rory.root, 'config')
     end
 
+    def set_routes(&block)
+      @routes = RouteMapper.set_routes(&block)
+    end
+
     def routes
-      @routes ||= begin
-        config_routes_hash = load_config_data(:routes)
-        config_routes_hash.map do |mask, target|
-          regex = /^#{mask.gsub(/:([\w_]+)/, "(?<\\1>\[\^\\\/\]+)")}$/
-          presenter, action = target.split('#')
-          {
-            :presenter => presenter,
-            :action => action,
-            :regex => regex
-          }
-        end
+      unless @routes
+        load(File.join(@config_path, 'routes.rb'))
       end
+      @routes
     end
 
     def configure
