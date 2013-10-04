@@ -1,7 +1,7 @@
 namespace :db do
   task :load_extensions => :environment do
-    Sequel.extension :schema_dumper
-    Sequel.extension :migration
+    Sequel::Database.extension :schema_dumper
+    Sequel::Database.extension :migration
   end
 
   desc "Migrate database to current version (or given version if arg)"
