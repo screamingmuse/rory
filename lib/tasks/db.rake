@@ -1,7 +1,7 @@
 namespace :db do
   task :load_extensions => :environment do
-    Sequel::Database.extension :schema_dumper
-    Sequel::Database.extension :migration
+    RORY_APP.db.extension :schema_dumper
+    RORY_APP.db.extension :migration
   end
 
   desc "Migrate database to current version (or given version if arg)"
