@@ -23,7 +23,7 @@ module Rory
     end
 
     def dispatch
-      @request[:route] = get_route(@request.path, @request.request_method.downcase)
+      @request[:route] = get_route(@request.path, method)
 
       if @request[:route]
         controller_name = Rory::Support.camelize("#{@request[:route][:controller]}_controller")
@@ -33,6 +33,14 @@ module Rory
       else
         render_404
       end
+    end
+
+    def method
+      override_method = @request.params.delete('_method')
+      if override_method && ['put', 'patch', 'delete'].include?(override_method.downcase)
+        return override_method.downcase
+      end
+      @request.request_method.downcase
     end
 
     def redirect(path = '/')

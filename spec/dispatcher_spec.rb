@@ -24,7 +24,7 @@ describe Rory::Dispatcher do
   describe "#dispatch" do
     it "renders a 404 if the requested path is invalid" do
       @request = {}
-      @request.stub(:path => nil, :request_method => 'GET')
+      @request.stub(:path => nil, :request_method => 'GET', :params => {})
       @dispatcher = Rory::Dispatcher.new(@request)
       @dispatcher.stub(:get_route).and_return(nil)
       @dispatcher.dispatch[0..1].should == [404, {"Content-type"=>"text/html"}]
@@ -32,7 +32,7 @@ describe Rory::Dispatcher do
 
     it "instantiates a controller with the parsed request and calls present" do
       @request = {:whatever => :yay}
-      @request.stub(:path => '/', :request_method => 'GET')
+      @request.stub(:path => '/', :request_method => 'GET', :params => {})
       @dispatcher = Rory::Dispatcher.new(@request)
       route = { :controller => 'stub' }
       @dispatcher.stub(:get_route).and_return(route)
@@ -77,6 +77,31 @@ describe Rory::Dispatcher do
       }.inspect
 
       @request.params.should == {:path=>"some-thing_or-other", :very_awesome=>"wicked"}
+    end
+  end
+
+  describe '#method' do
+    it 'returns downcased method from request' do
+      request = {:whatever => :yay}
+      request.stub(:path => '/', :request_method => 'POST', :params => {})
+      dispatcher = Rory::Dispatcher.new(request)
+      dispatcher.method.should == 'post'
+    end
+
+    ['put', 'patch', 'delete'].each do |override_method|
+      it "overrides request method if _method from params is #{override_method}" do
+        request = {:whatever => :yay}
+        request.stub(:path => '/', :request_method => 'POST', :params => {'_method' => override_method})
+        dispatcher = Rory::Dispatcher.new(request)
+        dispatcher.method.should == override_method
+      end
+    end
+
+    it 'ignores overriding _method if not valid' do
+      request = {:whatever => :yay}
+      request.stub(:path => '/', :request_method => 'POST', :params => {'_method' => 'rhubarb'})
+      dispatcher = Rory::Dispatcher.new(request)
+      dispatcher.method.should == 'post'
     end
   end
 end
