@@ -14,13 +14,32 @@ module Rory
       "#{@route[:controller]}/#{@route[:action]}"
     end
 
-    def render(template)
-      file = File.expand_path("views/#{template}.html.erb", Rory.root)
-      @body = ERB.new(File.read(file)).result(binding)
+    def layout
+      nil
+    end
+
+    def render(template, opts = {})
+      if layout
+        opts = { :layout => layout }.merge(opts)
+      end
+      file = view_path(template)
+      output = ERB.new(File.read(file)).result(binding)
+      if layout = opts[:layout]
+        output = render(File.join('layouts', layout), { :layout => false }) { output }
+      end
+      @body = output
+    end
+
+    def view_path(template)
+      File.expand_path(File.join('views', "#{template}.html.erb"), Rory.root)
     end
 
     def redirect(path)
       @response = @request[:dispatcher].redirect(path)
+    end
+
+    def render_404
+      @response = @request[:dispatcher].render_404
     end
 
     def present

@@ -12,10 +12,28 @@ describe Rory::Controller do
     @request.stub(:params)
   end
 
+  describe '#layout' do
+    it 'defaults to nil' do
+      controller = Rory::Controller.new(@request)
+      controller.layout.should be_nil
+    end
+  end
+
   describe "#render" do
     it "returns text of template" do
       controller = Rory::Controller.new(@request)
       controller.render('test/static').should == 'Static content'
+    end
+
+    it "returns text of template in controller's layout" do
+      controller = Rory::Controller.new(@request)
+      controller.stub(:layout => 'surround')
+      controller.render('test/static').should == 'Surrounding Static content is fun'
+    end
+
+    it "returns text of template in given layout from options" do
+      controller = Rory::Controller.new(@request)
+      controller.render('test/static', :layout => 'surround').should == 'Surrounding Static content is fun'
     end
 
     it "evaluates ERB in controller's context" do
@@ -31,6 +49,15 @@ describe Rory::Controller do
       dispatcher.should_receive(:redirect).with(:whatever)
       controller = Rory::Controller.new(@request)
       controller.redirect(:whatever)
+    end
+  end
+
+  describe "#render_404" do
+    it "delegates to dispatcher from request" do
+      @request[:dispatcher] = dispatcher = stub
+      dispatcher.should_receive(:render_404)
+      controller = Rory::Controller.new(@request)
+      controller.render_404
     end
   end
 
