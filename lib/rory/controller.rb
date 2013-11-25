@@ -19,13 +19,11 @@ module Rory
     end
 
     def render(template, opts = {})
-      if layout
-        opts = { :layout => layout }.merge(opts)
-      end
+      opts = { :layout => layout }.merge(opts)
       file = view_path(template)
       output = ERB.new(File.read(file)).result(binding)
       if layout = opts[:layout]
-        output = render(File.join('layouts', layout), { :layout => false }) { output }
+        output = render(File.join('layouts', layout.to_s), { :layout => false }) { output }
       end
       @body = output
     end

@@ -31,6 +31,12 @@ describe Rory::Controller do
       controller.render('test/static').should == 'Surrounding Static content is fun'
     end
 
+    it "handles symbolized layout name" do
+      controller = Rory::Controller.new(@request)
+      controller.stub(:layout => :surround)
+      controller.render('test/static').should == 'Surrounding Static content is fun'
+    end
+
     it "returns text of template in given layout from options" do
       controller = Rory::Controller.new(@request)
       controller.render('test/static', :layout => 'surround').should == 'Surrounding Static content is fun'
