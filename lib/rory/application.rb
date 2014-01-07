@@ -1,3 +1,4 @@
+require 'pathname'
 require 'logger'
 require 'rory/route_mapper'
 
@@ -6,11 +7,19 @@ module Rory
   # but currently no additional configuration is needed - just run '#spin_up'
   # to connect the database so Sequel can do its magic.
   class Application
+    class RootNotConfigured < StandardError; end
+
     attr_reader :db, :db_config
     attr_accessor :config_path
 
     class << self
       private :new
+      attr_reader :root
+
+      def inherited(base)
+        super
+        Rory.application = base.instance
+      end
 
       def method_missing(*args, &block)
         instance.send(*args, &block)
@@ -19,10 +28,37 @@ module Rory
       def instance
         @instance ||= new
       end
+
+      def root=(root_path)
+        @root = Pathname.new(root_path).expand_path
+      end
     end
 
-    def initialize
-      @config_path = File.join(Rory.root, 'config')
+    def autoload_paths
+      @autoload_paths ||= %w(models controllers helpers)
+    end
+
+    def autoload_all_files
+      autoload_paths.each do |path|
+        Dir[root_path.join(path, '*.rb')].each do |file|
+          Rory::Support.autoload_file file
+        end
+      end
+    end
+
+    def root
+      self.class.root
+    end
+
+    def root_path
+      raise RootNotConfigured, "#{self.class.name} has no root configured" unless root
+      root
+    end
+
+    def config_path
+      @config_path ||= begin
+        root_path.join('config')
+      end
     end
 
     def set_routes(&block)
@@ -31,7 +67,7 @@ module Rory
 
     def routes
       unless @routes
-        load(File.join(@config_path, 'routes.rb'))
+        load(File.join(config_path, 'routes.rb'))
       end
       @routes
     end
@@ -57,7 +93,7 @@ module Rory
     end
 
     def call(env)
-      Rory::Dispatcher.new(Rack::Request.new(env)).dispatch
+      Rory::Dispatcher.new(routes, Rack::Request.new(env)).dispatch
     end
 
     def logger

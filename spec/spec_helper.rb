@@ -9,8 +9,10 @@ require 'rack'
 # in ./support/ and its subdirectories.
 Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each {|f| require f}
 
-Rory.root = File.join(File.dirname(__FILE__), 'fixture_app')
-Rory.autoload_all_files
+require_relative 'fixture_app/config/application'
+Fixture::Application.root = File.join(File.dirname(__FILE__), 'fixture_app')
+
+Fixture::Application.autoload_all_files
 
 RSpec.configure do |config|
 

@@ -3,7 +3,8 @@ module Rory
   # appropriate controller, after examining the routes.
   class Dispatcher
     attr_reader :request
-    def initialize(rack_request)
+    def initialize(routes, rack_request)
+      @routes = routes
       @request = rack_request
       @request[:route] = nil
       @request[:dispatcher] = self
@@ -11,7 +12,7 @@ module Rory
 
     def get_route(path, method)
       match = nil
-      route = Rory::Application.routes.detect do |route_hash|
+      route = @routes.detect do |route_hash|
         match = route_hash[:regex].match(path[1..-1])
         match && (route_hash[:methods].nil? || route_hash[:methods].include?(method.to_sym))
       end

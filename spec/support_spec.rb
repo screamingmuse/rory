@@ -6,4 +6,12 @@ describe Rory::Support do
       Rory::Support.camelize('water_under_bridge').should == 'WaterUnderBridge'
     end
   end
+
+  describe '.autoload_file' do
+    it 'adds basename of given path to autoload list by default' do
+      path = '/fake_root/gas/is/cheap/in/good_old_america.rb'
+      Object.should_receive(:autoload).with(:GoodOldAmerica, path)
+      Rory::Support.autoload_file(path)
+    end
+  end
 end
