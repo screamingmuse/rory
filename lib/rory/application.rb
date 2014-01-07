@@ -40,9 +40,7 @@ module Rory
 
     def autoload_all_files
       autoload_paths.each do |path|
-        Dir[root_path.join(path, '*.rb')].each do |file|
-          Rory::Support.autoload_file file
-        end
+        Rory::Support.autoload_all_files_in_directory root_path.join(path)
       end
     end
 

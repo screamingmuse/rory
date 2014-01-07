@@ -14,4 +14,14 @@ describe Rory::Support do
       Rory::Support.autoload_file(path)
     end
   end
+
+  describe '.autoload_all_files_in_directory' do
+    it 'autoloads all files from given path' do
+      Dir.stub(:[]).with(Pathname.new('spinach').join('**', '*.rb')).
+        and_return(["pumpkins", "some_guy_dressed_as_liberace"])
+      Rory::Support.should_receive(:autoload_file).with("pumpkins")
+      Rory::Support.should_receive(:autoload_file).with("some_guy_dressed_as_liberace")
+      Rory::Support.autoload_all_files_in_directory('spinach')
+    end
+  end
 end

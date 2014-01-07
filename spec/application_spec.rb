@@ -90,13 +90,11 @@ describe Rory::Application do
   end
 
   describe '.autoload_all_files' do
-    it 'autoloads from autoload_paths' do
+    it 'autoloads all files in autoload_paths' do
       Fixture::Application.any_instance.stub(:autoload_paths).and_return(['goats', 'rhubarbs'])
       [:goats, :rhubarbs].each do |folder|
-        Dir.stub(:[]).with(Pathname.new(Fixture::Application.root).join("#{folder}", '*.rb')).
-          and_return(["#{folder}1", "#{folder}2"])
-        Rory::Support.should_receive(:autoload_file).with("#{folder}1")
-        Rory::Support.should_receive(:autoload_file).with("#{folder}2")
+        Rory::Support.should_receive(:autoload_all_files_in_directory).
+          with(Pathname.new(Fixture::Application.root).join("#{folder}"))
       end
       Fixture::Application.autoload_all_files
     end
