@@ -37,6 +37,5 @@ EOF
   s.add_development_dependency 'rspec'
   s.add_development_dependency 'yard'
   s.add_development_dependency 'reek'
-  s.add_development_dependency 'debugger'
 end
 
