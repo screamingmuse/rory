@@ -91,7 +91,7 @@ module Rory
     end
 
     def call(env)
-      Rory::Dispatcher.new(routes, Rack::Request.new(env)).dispatch
+      Rory::Dispatcher.new(Rack::Request.new(env), self).dispatch
     end
 
     def logger

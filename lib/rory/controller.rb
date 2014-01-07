@@ -4,10 +4,11 @@ module Rory
   # Interface for Controller class.  Subclass this to create controllers
   # with actions that will be called by the Dispatcher when a route matches.
   class Controller
-    def initialize(request)
+    def initialize(request, context = nil)
       @request = request
       @route = request[:route]
       @params = request.params
+      @context = context
     end
 
     def route_template
@@ -29,7 +30,8 @@ module Rory
     end
 
     def view_path(template)
-      File.expand_path(File.join('views', "#{template}.html.erb"), Rory.root)
+      root = @context ? @context.root : Rory.root
+      File.expand_path(File.join('views', "#{template}.html.erb"), root)
     end
 
     def redirect(path)

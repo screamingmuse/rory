@@ -109,4 +109,17 @@ describe Rory::Controller do
       ]
     end
   end
+
+  describe '#view_path' do
+    it 'returns path to template from context root' do
+      fake_context = double('Context', :root => 'marbles')
+      controller = Rory::Controller.new(@request, fake_context)
+      controller.view_path('goose').should == File.expand_path(File.join('views', 'goose.html.erb'), 'marbles')
+    end
+
+    it 'uses Rory.root if no context' do
+      controller = Rory::Controller.new(@request)
+      controller.view_path('goose').should == File.join(Rory.root, 'views', 'goose.html.erb')
+    end
+  end
 end

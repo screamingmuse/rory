@@ -3,11 +3,11 @@ module Rory
   # appropriate controller, after examining the routes.
   class Dispatcher
     attr_reader :request
-    def initialize(routes, rack_request)
-      @routes = routes
+    def initialize(rack_request, context = nil)
       @request = rack_request
       @request[:route] = nil
       @request[:dispatcher] = self
+      @context = context
     end
 
     def route_map
@@ -34,8 +34,7 @@ module Rory
       if route
         controller_name = Rory::Support.camelize("#{route[:controller]}_controller")
         controller_class = Object.const_get(controller_name)
-        controller = controller_class.new(@request)
-        controller.present
+        controller_class.new(@request, @context).present
       else
         render_not_found
       end

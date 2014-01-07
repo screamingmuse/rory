@@ -30,7 +30,7 @@ describe Rory::Application do
       dispatcher = stub(:dispatch => :expected)
       rack_request = double
       Rack::Request.stub(:new).with(:env).and_return(rack_request)
-      Rory::Dispatcher.should_receive(:new).with(Fixture::Application.routes, rack_request).and_return(dispatcher)
+      Rory::Dispatcher.should_receive(:new).with(rack_request, Fixture::Application.instance).and_return(dispatcher)
       Fixture::Application.call(:env).should == :expected
     end
   end
