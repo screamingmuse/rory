@@ -36,8 +36,8 @@ module Rory
       @response = @request[:dispatcher].redirect(path)
     end
 
-    def render_404
-      @response = @request[:dispatcher].render_404
+    def render_not_found
+      @response = @request[:dispatcher].render_not_found
     end
 
     def present

@@ -7,6 +7,7 @@ module Rory
   # but currently no additional configuration is needed - just run '#spin_up'
   # to connect the database so Sequel can do its magic.
   class Application
+    # Exception raised if no root has been set for this Rory::Application subclass
     class RootNotConfigured < StandardError; end
 
     attr_reader :db, :db_config
@@ -49,8 +50,7 @@ module Rory
     end
 
     def root_path
-      raise RootNotConfigured, "#{self.class.name} has no root configured" unless root
-      root
+      root || raise(RootNotConfigured, "#{self.class.name} has no root configured")
     end
 
     def config_path

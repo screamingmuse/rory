@@ -58,12 +58,12 @@ describe Rory::Controller do
     end
   end
 
-  describe "#render_404" do
+  describe "#render_not_found" do
     it "delegates to dispatcher from request" do
       @request[:dispatcher] = dispatcher = stub
-      dispatcher.should_receive(:render_404)
+      dispatcher.should_receive(:render_not_found)
       controller = Rory::Controller.new(@request)
-      controller.render_404
+      controller.render_not_found
     end
   end
 

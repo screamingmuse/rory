@@ -12,7 +12,8 @@ module Rory
     attr_accessor :application
 
     def root
-      application && application.root
+      app = application
+      app && app.root
     end
   end
 end

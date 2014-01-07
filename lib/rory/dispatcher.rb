@@ -32,16 +32,18 @@ module Rory
         controller = controller_class.new(@request)
         controller.present
       else
-        render_404
+        render_not_found
       end
     end
 
     def method
       override_method = @request.params.delete('_method')
-      if override_method && ['put', 'patch', 'delete'].include?(override_method.downcase)
-        return override_method.downcase
+      method = if override_method && ['put', 'patch', 'delete'].include?(override_method.downcase)
+        override_method
+      else
+        @request.request_method
       end
-      @request.request_method.downcase
+      method.downcase
     end
 
     def redirect(path = '/')
@@ -51,7 +53,7 @@ module Rory
       return [ 302, {'Content-type' => 'text/html', 'Location'=> path }, ['Redirecting...'] ]
     end
 
-    def render_404
+    def render_not_found
       return [ 404, {'Content-type' => 'text/html' }, ['Four, oh, four.'] ]
     end
 
