@@ -43,6 +43,19 @@ describe Rory::Dispatcher do
         :present_called => true # see StubController in /spec/fixture_app
       }
     end
+
+    it "uses existing route if given in request" do
+      @request = {:whatever => :yay, :route => { :controller => 'stub' } }
+      @request.stub(:path => '/', :request_method => 'GET', :params => {})
+      @dispatcher = Rory::Dispatcher.new(@request, Fixture::Application)
+      @dispatcher.should_receive(:get_route).never
+      @dispatcher.dispatch.should == {
+        :whatever => :yay,
+        :route => { :controller => 'stub' },
+        :dispatcher => @dispatcher,
+        :present_called => true # see StubController in /spec/fixture_app
+      }
+    end
   end
 
   describe "#get_route" do

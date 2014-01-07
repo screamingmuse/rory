@@ -5,7 +5,7 @@ module Rory
     attr_reader :request
     def initialize(rack_request, context = nil)
       @request = rack_request
-      @request[:route] = nil
+      @request[:route] ||= nil
       @request[:dispatcher] = self
       @context = context
     end
@@ -43,6 +43,7 @@ module Rory
     def set_route_if_empty
       @request[:route] ||= get_route
     end
+
     def method
       override_method = @request.params.delete('_method')
       method = if override_method && ['put', 'patch', 'delete'].include?(override_method.downcase)
