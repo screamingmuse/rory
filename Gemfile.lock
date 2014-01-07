@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rory (0.2.2)
+    rory (0.2.3)
       rack
       rake
       sequel
@@ -41,10 +41,10 @@ GEM
       sexp_processor (~> 4.1)
     sequel (4.3.0)
     sexp_processor (4.2.1)
-    thin (1.6.0)
+    thin (1.6.1)
       daemons (>= 1.0.9)
       eventmachine (>= 1.0.0)
-      rack (>= 1.5.0)
+      rack (>= 1.0.0)
     yard (0.8.6.1)
 
 PLATFORMS
