@@ -10,11 +10,16 @@ module Rory
       @request[:dispatcher] = self
     end
 
-    def get_route(path, method)
+    def route_map
+      @context ? @context.routes : []
+    end
+
+    def get_route
       match = nil
-      route = @routes.detect do |route_hash|
-        match = route_hash[:regex].match(path[1..-1])
-        match && (route_hash[:methods].nil? || route_hash[:methods].include?(method.to_sym))
+      route = route_map.detect do |route_hash|
+        match = route_hash[:regex].match(@request.path[1..-1])
+        methods = route_hash[:methods] || []
+        match && (methods.empty? || methods.include?(method.to_sym))
       end
       if route
         symbolized_param_names = match.names.map { |name| name.to_sym }
@@ -24,10 +29,10 @@ module Rory
     end
 
     def dispatch
-      @request[:route] = get_route(@request.path, method)
+      route = set_route_if_empty
 
-      if @request[:route]
-        controller_name = Rory::Support.camelize("#{@request[:route][:controller]}_controller")
+      if route
+        controller_name = Rory::Support.camelize("#{route[:controller]}_controller")
         controller_class = Object.const_get(controller_name)
         controller = controller_class.new(@request)
         controller.present
@@ -36,6 +41,9 @@ module Rory
       end
     end
 
+    def set_route_if_empty
+      @request[:route] ||= get_route
+    end
     def method
       override_method = @request.params.delete('_method')
       method = if override_method && ['put', 'patch', 'delete'].include?(override_method.downcase)

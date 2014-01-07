@@ -53,7 +53,8 @@ describe Rory::Dispatcher do
     end
 
     it "matches the given path to the routes table" do
-      @dispatcher.get_route('/foo', 'put').should == {
+      @request.stub(:path => '/foo', :request_method => 'PUT')
+      @dispatcher.get_route.should == {
         :controller => 'monkeys',
         :action => nil,
         :regex => /^foo$/,
@@ -62,15 +63,23 @@ describe Rory::Dispatcher do
     end
 
     it "returns nil if no route found" do
-      @dispatcher.get_route('/umbrellas', 'get').should be_nil
+      @request.stub(:path => '/umbrellas', :request_method => 'GET')
+      @dispatcher.get_route.should be_nil
+    end
+
+    it "returns nil if no context" do
+      @dispatcher = Rory::Dispatcher.new(@request)
+      @dispatcher.get_route.should be_nil
     end
 
     it "returns nil if route found but method is not allowed" do
-      @dispatcher.get_route('/foo', 'get').should be_nil
+      @request.stub(:path => '/foo', :request_method => 'GET')
+      @dispatcher.get_route.should be_nil
     end
 
     it "assigns named matches to params hash" do
-      @dispatcher.get_route('/this/some-thing_or-other/is/wicked', 'get').inspect.should == {
+      @request.stub(:path => '/this/some-thing_or-other/is/wicked', :request_method => 'GET')
+      @dispatcher.get_route.inspect.should == {
         :controller => 'awesome',
         :action => 'rad',
         :regex => /^this\/(?<path>[^\/]+)\/is\/(?<very_awesome>[^\/]+)$/,

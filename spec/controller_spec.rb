@@ -9,7 +9,7 @@ describe Rory::Controller do
       }
     }
 
-    @request.stub(:params)
+    @request.stub(:params => {})
   end
 
   describe '#layout' do
