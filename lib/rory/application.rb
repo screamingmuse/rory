@@ -26,6 +26,11 @@ module Rory
         instance.send(*args, &block)
       end
 
+      def respond_to?(method)
+        return true if instance.respond_to?(method)
+        super
+      end
+
       def instance
         @instance ||= new
       end

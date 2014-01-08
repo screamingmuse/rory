@@ -25,6 +25,19 @@ describe Rory::Application do
     end
   end
 
+  describe ".respond_to?" do
+    it 'returns true if the instance said so' do
+      Fixture::Application.instance.should_receive(:respond_to?).with(:goat).and_return(true)
+      Fixture::Application.respond_to?(:goat).should be_true
+    end
+
+    it 'does the usual thing if instance says no' do
+      Fixture::Application.instance.should_receive(:respond_to?).twice.and_return(false)
+      Fixture::Application.respond_to?(:to_s).should be_true
+      Fixture::Application.respond_to?(:obviously_not_a_real_method).should be_false
+    end
+  end
+
   describe ".call" do
     it "forwards arg to new dispatcher, and calls dispatch" do
       dispatcher = stub(:dispatch => :expected)
