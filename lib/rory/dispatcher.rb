@@ -17,7 +17,7 @@ module Rory
     def get_route
       match = nil
       route = route_map.detect do |route_hash|
-        match = route_hash[:regex].match(@request.path[1..-1])
+        match = route_hash[:regex].match(@request.path_info[1..-1])
         methods = route_hash[:methods] || []
         match && (methods.empty? || methods.include?(method.to_sym))
       end
