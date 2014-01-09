@@ -9,15 +9,15 @@ Gem::Specification.new do |s|
   s.version = Rory::VERSION
   s.platform = Gem::Platform::RUBY
   s.authors = ["Ravi Gadad"]
-  s.email = ["ravi@renewfund.com"]
-  s.homepage = "http://github.com/renewablefunding/rory"
+  s.email = ["ravi@screamingmuse.com"]
+  s.homepage = "http://github.com/screamingmuse/rory"
   s.summary = "Another Ruby web framework. Just what the world needs."
   s.description = <<-EOF
 An exercise: Untangle the collusion of Rails idioms
 from my Ruby knowledge, while trying to understand some
 Rails design decisions.
 
-See http://github.com/renewablefunding/rory for more info.
+See http://github.com/screamingmuse/rory for more info.
 EOF
   s.required_ruby_version     = ">= 1.8.7"
   s.required_rubygems_version = ">= 1.3.6"
