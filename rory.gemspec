@@ -28,13 +28,14 @@ EOF
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
 
-  s.add_runtime_dependency 'rack'
-  s.add_runtime_dependency 'sequel'
-  s.add_runtime_dependency 'thin'
-  s.add_runtime_dependency 'rake'
+  s.add_runtime_dependency 'rack', '>= 1.0'
+  s.add_runtime_dependency 'sequel', '~> 4.5'
+  s.add_runtime_dependency 'thin', '~> 1.6'
 
+  s.add_development_dependency 'rake'
   s.add_development_dependency 'rspec'
   s.add_development_dependency 'yard'
   s.add_development_dependency 'reek'
+  s.add_development_dependency 'bundler', '~> 1.0'
 end
 
