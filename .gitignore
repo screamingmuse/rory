@@ -15,3 +15,9 @@ log/*.log
 
 # rbfu/rvm/rbenv version file
 .ruby-version
+
+# gem packages
+pkg
+
+# don't include Gemfile.lock
+Gemfile.lock
