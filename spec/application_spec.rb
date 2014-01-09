@@ -75,7 +75,8 @@ describe Rory::Application do
       Fixture::Application.routes.inspect.should == [
         { :controller => 'foo', :action => 'bar', :regex => /^foo\/(?<id>[^\/]+)\/bar$/, :methods => [:get, :post] },
         { :controller => 'monkeys', :action => nil, :regex => /^foo$/, :methods => [:put] },
-        { :controller => 'awesome', :action => 'rad', :regex => /^this\/(?<path>[^\/]+)\/is\/(?<very_awesome>[^\/]+)$/}
+        { :controller => 'awesome', :action => 'rad', :regex => /^this\/(?<path>[^\/]+)\/is\/(?<very_awesome>[^\/]+)$/},
+        { :controller => 'root', :action => 'vegetable', :regex => /^$/, :methods => [:get] }
       ].inspect
     end
   end
