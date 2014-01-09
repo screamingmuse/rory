@@ -20,7 +20,7 @@ module Rory
 
     def match(mask, options = {})
       options[:to] ||= mask.split('/').first
-      mask.gsub!(/^\/$/, '')
+      mask.gsub!(/^\//, '')
       regex = /^#{mask.gsub(/:([\w_]+)/, "(?<\\1>\[\^\\\/\]+)")}$/
       controller, action = options[:to].split('#')
       route = {
