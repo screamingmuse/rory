@@ -1,3 +1,13 @@
+require 'irb'
+
+namespace :rory do
+  desc "Opens IRB console with Rory application loaded"
+  task :console => :environment do
+    command = ARGV.shift
+    IRB.start
+  end
+end
+
 namespace :log do
   desc "Truncates all logs"
   task :clear do
