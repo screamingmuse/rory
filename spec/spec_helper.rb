@@ -12,7 +12,7 @@ Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each {|f| require f}
 require_relative 'fixture_app/config/application'
 Fixture::Application.root = File.join(File.dirname(__FILE__), 'fixture_app')
 
-Fixture::Application.autoload_all_files
+Fixture::Application.require_all_files
 
 RSpec.configure do |config|
 

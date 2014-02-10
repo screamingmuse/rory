@@ -90,27 +90,27 @@ describe Rory::Application do
 
   describe '.autoload_paths' do
     after(:each) do
-      Fixture::Application.instance.instance_variable_set(:@autoload_paths, nil)
+      Fixture::Application.instance.instance_variable_set(:@auto_require_paths, nil)
     end
 
     it 'includes models, controllers, and helpers by default' do
-      Fixture::Application.autoload_paths.should == ['models', 'controllers', 'helpers']
+      Fixture::Application.auto_require_paths.should == ['models', 'controllers', 'helpers']
     end
 
     it 'accepts new paths' do
-      Fixture::Application.autoload_paths << 'chocolates'
-      Fixture::Application.autoload_paths.should == ['models', 'controllers', 'helpers', 'chocolates']
+      Fixture::Application.auto_require_paths << 'chocolates'
+      Fixture::Application.auto_require_paths.should == ['models', 'controllers', 'helpers', 'chocolates']
     end
   end
 
-  describe '.autoload_all_files' do
-    it 'autoloads all files in autoload_paths' do
-      Fixture::Application.any_instance.stub(:autoload_paths).and_return(['goats', 'rhubarbs'])
+  describe '.require_all_files' do
+    it 'requires all files in auto_require_paths' do
+      Fixture::Application.any_instance.stub(:auto_require_paths).and_return(['goats', 'rhubarbs'])
       [:goats, :rhubarbs].each do |folder|
-        Rory::Support.should_receive(:autoload_all_files_in_directory).
+        Rory::Support.should_receive(:require_all_files_in_directory).
           with(Pathname.new(Fixture::Application.root).join("#{folder}"))
       end
-      Fixture::Application.autoload_all_files
+      Fixture::Application.require_all_files
     end
   end
 end

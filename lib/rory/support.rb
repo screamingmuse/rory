@@ -14,15 +14,9 @@ module Rory
       name = camelize(name)
     end
 
-    def autoload_file(path)
-      path = File.expand_path(path)
-      name = extract_class_name_from_path(path)
-      Object.autoload name.to_sym, path
-    end
-
-    def autoload_all_files_in_directory(path)
+    def require_all_files_in_directory(path)
       Dir[Pathname.new(path).join('**', '*.rb')].each do |file|
-        Rory::Support.autoload_file file
+        require file
       end
     end
   end

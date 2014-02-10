@@ -40,13 +40,13 @@ module Rory
       end
     end
 
-    def autoload_paths
-      @autoload_paths ||= %w(models controllers helpers)
+    def auto_require_paths
+      @auto_require_paths ||= %w(models controllers helpers)
     end
 
-    def autoload_all_files
-      autoload_paths.each do |path|
-        Rory::Support.autoload_all_files_in_directory root_path.join(path)
+    def require_all_files
+      auto_require_paths.each do |path|
+        Rory::Support.require_all_files_in_directory root_path.join(path)
       end
     end
 
