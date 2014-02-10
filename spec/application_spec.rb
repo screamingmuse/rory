@@ -76,6 +76,7 @@ describe Rory::Application do
         { :controller => 'foo', :action => 'bar', :regex => /^foo\/(?<id>[^\/]+)\/bar$/, :methods => [:get, :post] },
         { :controller => 'monkeys', :action => nil, :regex => /^foo$/, :methods => [:put] },
         { :controller => 'awesome', :action => 'rad', :regex => /^this\/(?<path>[^\/]+)\/is\/(?<very_awesome>[^\/]+)$/},
+        { :controller => 'lumpies', :action => 'show', :regex => /^lumpies\/(?<lump>[^\/]+)$/, :module => 'goose', :methods => [:get] },
         { :controller => 'root', :action => 'vegetable', :regex => /^$/, :methods => [:get] }
       ].inspect
     end

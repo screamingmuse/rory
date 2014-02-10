@@ -34,7 +34,17 @@ module Rory
 
       if route
         controller_name = Rory::Support.camelize("#{route[:controller]}_controller")
-        controller_class = Object.const_get(controller_name)
+        const_scope = if route[:module]
+          begin
+            module_name = Rory::Support.camelize("#{route[:module]}")
+            const_scope = Object.const_get(module_name)
+          rescue NameError
+            Object.const_set(module_name, Module.new)
+          end
+        else
+          Object
+        end
+        controller_class = const_scope.const_get(controller_name)
         controller_class.new(@request, @context).present
       else
         render_not_found

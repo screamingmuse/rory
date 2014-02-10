@@ -56,6 +56,20 @@ describe Rory::Dispatcher do
         :present_called => true # see StubController in /spec/fixture_app
       }
     end
+
+    it "instantiates a controller with the parsed request and calls present" do
+      @request = {:whatever => :yay}
+      @request.stub(:path_info => '/', :request_method => 'GET', :params => {})
+      @dispatcher = Rory::Dispatcher.new(@request, Fixture::Application)
+      route = { :controller => 'lumpies', :module => 'goose' }
+      @dispatcher.stub(:get_route).and_return(route)
+      @dispatcher.dispatch.should == {
+        :whatever => :yay,
+        :route => route,
+        :dispatcher => @dispatcher,
+        :in_scoped_controller => true # see Goose::LumpiesController in /spec/fixture_app
+      }
+    end
   end
 
   describe "#get_route" do
