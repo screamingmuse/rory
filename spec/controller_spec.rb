@@ -51,7 +51,7 @@ describe Rory::Controller do
 
   describe "#redirect" do
     it "delegates to dispatcher from request" do
-      @request[:dispatcher] = dispatcher = stub
+      @request[:dispatcher] = dispatcher = double
       dispatcher.should_receive(:redirect).with(:whatever)
       controller = Rory::Controller.new(@request)
       controller.redirect(:whatever)
@@ -60,7 +60,7 @@ describe Rory::Controller do
 
   describe "#render_not_found" do
     it "delegates to dispatcher from request" do
-      @request[:dispatcher] = dispatcher = stub
+      @request[:dispatcher] = dispatcher = double
       dispatcher.should_receive(:render_not_found)
       controller = Rory::Controller.new(@request)
       controller.render_not_found

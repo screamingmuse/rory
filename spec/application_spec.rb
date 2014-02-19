@@ -40,7 +40,7 @@ describe Rory::Application do
 
   describe ".call" do
     it "forwards arg to new dispatcher, and calls dispatch" do
-      dispatcher = stub(:dispatch => :expected)
+      dispatcher = double(:dispatch => :expected)
       rack_request = double
       Rack::Request.stub(:new).with(:env).and_return(rack_request)
       Rory::Dispatcher.should_receive(:new).with(rack_request, Fixture::Application.instance).and_return(dispatcher)
@@ -51,7 +51,7 @@ describe Rory::Application do
   describe ".load_config_data" do
     it "returns parsed yaml file with given name from directory at config_path" do
       Fixture::Application.any_instance.stub(:config_path).and_return('Africa the Great')
-      YAML.stub!(:load_file).with(
+      YAML.stub(:load_file).with(
         File.expand_path(File.join('Africa the Great', 'foo_type.yml'))).
         and_return(:oscar_the_grouch_takes_a_nap)
       Fixture::Application.load_config_data(:foo_type).should == :oscar_the_grouch_takes_a_nap
@@ -62,7 +62,7 @@ describe Rory::Application do
     it "sets up sequel connection to DB from YAML file" do
       config = { 'development' => :expected }
       Fixture::Application.any_instance.stub(:load_config_data).with(:database).and_return(config)
-      Sequel.should_receive(:connect).with(:expected).and_return(stub(:loggers => []))
+      Sequel.should_receive(:connect).with(:expected).and_return(double(:loggers => []))
       Fixture::Application.connect_db('development')
     end
   end
