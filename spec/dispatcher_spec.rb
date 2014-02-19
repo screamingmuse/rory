@@ -75,6 +75,16 @@ describe Rory::Dispatcher do
       }
     end
 
+    it "works with empty path" do
+      @request.stub(:path_info => '', :request_method => 'GET')
+      @dispatcher.get_route.should == {
+        :controller => 'root',
+        :action => 'vegetable',
+        :regex => /^$/,
+        :methods => [:get]
+      }
+    end
+
     it "works with root url represented by slash" do
       @request.stub(:path_info => '/', :request_method => 'GET')
       @dispatcher.get_route.should == {
