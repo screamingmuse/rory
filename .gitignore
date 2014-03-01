@@ -21,3 +21,6 @@ pkg
 
 # don't include Gemfile.lock
 Gemfile.lock
+
+# coverage
+coverage/*

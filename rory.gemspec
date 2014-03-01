@@ -36,6 +36,7 @@ EOF
   s.add_development_dependency 'rspec'
   s.add_development_dependency 'yard'
   s.add_development_dependency 'reek'
+  s.add_development_dependency 'simplecov'
   s.add_development_dependency 'bundler', '~> 1.0'
 end
 

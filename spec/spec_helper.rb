@@ -1,3 +1,6 @@
+require 'simplecov'
+SimpleCov.start
+
 ENV['RORY_STAGE'] = 'test'
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 $LOAD_PATH.unshift(File.dirname(__FILE__))
