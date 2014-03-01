@@ -9,4 +9,5 @@ Fixture::Application.set_routes do
     match 'rabbits/:chew', :to => 'rabbits#chew', :methods => [:get]
   end
   match '/', :to => 'root#vegetable', :methods => [:get]
+  match 'for_reals/:parbles', :to => 'for_reals#srsly', :methods => [:get]
 end

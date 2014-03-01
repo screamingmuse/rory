@@ -78,7 +78,8 @@ describe Rory::Application do
         { :controller => 'awesome', :action => 'rad', :regex => /^this\/(?<path>[^\/]+)\/is\/(?<very_awesome>[^\/]+)$/},
         { :controller => 'lumpies', :action => 'show', :regex => /^lumpies\/(?<lump>[^\/]+)$/, :module => 'goose', :methods => [:get] },
         { :controller => 'rabbits', :action => 'chew', :regex => /^rabbits\/(?<chew>[^\/]+)$/, :module => 'goose/wombat', :methods => [:get] },
-        { :controller => 'root', :action => 'vegetable', :regex => /^$/, :methods => [:get] }
+        { :controller => 'root', :action => 'vegetable', :regex => /^$/, :methods => [:get] },
+        { :controller => 'for_reals', :action => 'srsly', :regex => /^for_reals\/(?<parbles>[^\/]+)$/, :methods => [:get] }
       ].inspect
     end
   end
