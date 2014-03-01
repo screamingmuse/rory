@@ -9,11 +9,6 @@ module Rory
       string = string.gsub(/(?:_|(\/))([a-z\d]*)/) { "#{$1}#{$2.capitalize}" }.gsub('/', '::')
     end
 
-    def extract_class_name_from_path(path)
-      name = File.basename(path).sub(/(.*)\.rb$/, '\1')
-      name = camelize(name)
-    end
-
     def require_all_files_in_directory(path)
       Dir[Pathname.new(path).join('**', '*.rb')].each do |file|
         require file
