@@ -90,7 +90,7 @@ describe Rory::Application do
     end
   end
 
-  describe '.autoload_paths' do
+  describe '.auto_require_paths' do
     after(:each) do
       Fixture::Application.instance.instance_variable_set(:@auto_require_paths, nil)
     end
