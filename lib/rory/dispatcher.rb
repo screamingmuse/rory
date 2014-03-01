@@ -5,54 +5,19 @@ module Rory
     attr_reader :request
     def initialize(rack_request, context = nil)
       @request = rack_request
-      @request[:route] ||= nil
-      @request[:dispatcher] = self
       @context = context
     end
 
-    def route_map
-      @context ? @context.routes : []
-    end
-
-    def get_route
-      match = nil
-      route = route_map.detect do |route_hash|
-        path_name = @request.path_info[1..-1] || ''
-        match = route_hash[:regex].match(path_name)
-        methods = route_hash[:methods] || []
-        match && (methods.empty? || methods.include?(method.to_sym))
-      end
-      if route
-        symbolized_param_names = match.names.map { |name| name.to_sym }
-        @request.params.merge! Hash[symbolized_param_names.zip(match.captures)]
-      end
-      route
+    def route
+      @request[:route] ||= get_route
     end
 
     def dispatch
-      route = set_route_if_empty
-
-      if route
-        controller_name = Rory::Support.camelize("#{route[:controller]}_controller")
-        const_scope = if route[:module]
-          begin
-            module_name = Rory::Support.camelize("#{route[:module]}")
-            const_scope = Object.const_get(module_name)
-          rescue NameError
-            Object.const_set(module_name, Module.new)
-          end
-        else
-          Object
-        end
-        controller_class = const_scope.const_get(controller_name)
-        controller_class.new(@request, @context).present
+      if controller
+        controller.present
       else
         render_not_found
       end
-    end
-
-    def set_route_if_empty
-      @request[:route] ||= get_route
     end
 
     def method
@@ -76,8 +41,43 @@ module Rory
       return [ 404, {'Content-type' => 'text/html' }, ['Four, oh, four.'] ]
     end
 
-    def inspect
-      @request.inspect # fixes issue for rspec and pretty_print
+  private
+
+    def controller
+      if klass = controller_class
+        klass.new(@request.merge(:dispatcher => self), @context)
+      end
+    end
+
+    def controller_class
+      if route
+        controller_name = Rory::Support.camelize("#{route[:controller]}_controller")
+        const_scope = if route[:module]
+          Object.const_get(Rory::Support.camelize("#{route[:module]}"))
+        else
+          Object
+        end
+        const_scope.const_get(controller_name)
+      end
+    end
+
+    def get_route
+      match = nil
+      mapped_route = route_map.detect do |route_hash|
+        path_name = @request.path_info[1..-1] || ''
+        match = route_hash[:regex].match(path_name)
+        methods = route_hash[:methods] || []
+        match && (methods.empty? || methods.include?(method.to_sym))
+      end
+      if mapped_route
+        symbolized_param_names = match.names.map { |name| name.to_sym }
+        @request.params.merge! Hash[symbolized_param_names.zip(match.captures)]
+      end
+      mapped_route
+    end
+
+    def route_map
+      @context ? @context.routes : []
     end
   end
 end

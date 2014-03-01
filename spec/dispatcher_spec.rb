@@ -22,66 +22,54 @@ describe Rory::Dispatcher do
   end
 
   describe "#dispatch" do
+    let(:dispatcher) { Rory::Dispatcher.new(request, Fixture::Application) }
+    let(:request) {
+      request = { :whatever => :yay }
+      request.stub(:path_info => '/', :request_method => 'GET', :params => {})
+      request
+    }
+
     it "renders a 404 if the requested path is invalid" do
-      @request = {}
-      @request.stub(:path_info => nil, :request_method => 'GET', :params => {})
-      @dispatcher = Rory::Dispatcher.new(@request, Fixture::Application)
-      @dispatcher.stub(:get_route).and_return(nil)
-      @dispatcher.dispatch[0..1].should == [404, {"Content-type"=>"text/html"}]
+      dispatcher.stub(:get_route).and_return(nil)
+      dispatcher.dispatch[0..1].should == [404, {"Content-type"=>"text/html"}]
     end
 
     it "instantiates a controller with the parsed request and calls present" do
-      @request = {:whatever => :yay}
-      @request.stub(:path_info => '/', :request_method => 'GET', :params => {})
-      @dispatcher = Rory::Dispatcher.new(@request, Fixture::Application)
-      route = { :controller => 'stub' }
-      @dispatcher.stub(:get_route).and_return(route)
-      @dispatcher.dispatch.should == {
+      request[:route] = { :controller => 'stub' }
+      dispatcher.dispatch.should == {
         :whatever => :yay,
-        :route => route,
-        :dispatcher => @dispatcher,
+        :route => request[:route],
+        :dispatcher => dispatcher,
         :present_called => true # see StubController in /spec/fixture_app
       }
     end
 
-    it "uses existing route if given in request" do
-      @request = {:whatever => :yay, :route => { :controller => 'stub' } }
-      @request.stub(:path_info => '/', :request_method => 'GET', :params => {})
-      @dispatcher = Rory::Dispatcher.new(@request, Fixture::Application)
-      @dispatcher.should_receive(:get_route).never
-      @dispatcher.dispatch.should == {
+    it "dispatches properly to a scoped controller" do
+      request[:route] = { :controller => 'lumpies', :module => 'goose' }
+      dispatcher.dispatch.should == {
         :whatever => :yay,
-        :route => { :controller => 'stub' },
-        :dispatcher => @dispatcher,
-        :present_called => true # see StubController in /spec/fixture_app
-      }
-    end
-
-    it "instantiates a controller with the parsed request and calls present" do
-      @request = {:whatever => :yay}
-      @request.stub(:path_info => '/', :request_method => 'GET', :params => {})
-      @dispatcher = Rory::Dispatcher.new(@request, Fixture::Application)
-      route = { :controller => 'lumpies', :module => 'goose' }
-      @dispatcher.stub(:get_route).and_return(route)
-      @dispatcher.dispatch.should == {
-        :whatever => :yay,
-        :route => route,
-        :dispatcher => @dispatcher,
+        :route => request[:route],
+        :dispatcher => dispatcher,
         :in_scoped_controller => true # see Goose::LumpiesController in /spec/fixture_app
       }
     end
   end
 
-  describe "#get_route" do
+  describe "#route" do
     before(:each) do
       @request = {}
       @request.stub(:params => {})
       @dispatcher = Rory::Dispatcher.new(@request, Fixture::Application)
     end
 
+    it "returns route from request if already set" do
+      @request[:route] = 'snaky pigeons'
+      @dispatcher.route.should == 'snaky pigeons'
+    end
+
     it "matches the path from the request to the routes table" do
       @request.stub(:path_info => '/foo', :request_method => 'PUT')
-      @dispatcher.get_route.should == {
+      @dispatcher.route.should == {
         :controller => 'monkeys',
         :action => nil,
         :regex => /^foo$/,
@@ -91,7 +79,7 @@ describe Rory::Dispatcher do
 
     it "works with empty path" do
       @request.stub(:path_info => '', :request_method => 'GET')
-      @dispatcher.get_route.should == {
+      @dispatcher.route.should == {
         :controller => 'root',
         :action => 'vegetable',
         :regex => /^$/,
@@ -101,7 +89,7 @@ describe Rory::Dispatcher do
 
     it "works with root url represented by slash" do
       @request.stub(:path_info => '/', :request_method => 'GET')
-      @dispatcher.get_route.should == {
+      @dispatcher.route.should == {
         :controller => 'root',
         :action => 'vegetable',
         :regex => /^$/,
@@ -111,22 +99,22 @@ describe Rory::Dispatcher do
 
     it "returns nil if no route found" do
       @request.stub(:path_info => '/umbrellas', :request_method => 'GET')
-      @dispatcher.get_route.should be_nil
+      @dispatcher.route.should be_nil
     end
 
     it "returns nil if no context" do
       @dispatcher = Rory::Dispatcher.new(@request)
-      @dispatcher.get_route.should be_nil
+      @dispatcher.route.should be_nil
     end
 
     it "returns nil if route found but method is not allowed" do
       @request.stub(:path_info => '/foo', :request_method => 'GET')
-      @dispatcher.get_route.should be_nil
+      @dispatcher.route.should be_nil
     end
 
     it "assigns named matches to params hash" do
       @request.stub(:path_info => '/this/some-thing_or-other/is/wicked', :request_method => 'GET')
-      @dispatcher.get_route.inspect.should == {
+      @dispatcher.route.inspect.should == {
         :controller => 'awesome',
         :action => 'rad',
         :regex => /^this\/(?<path>[^\/]+)\/is\/(?<very_awesome>[^\/]+)$/,
