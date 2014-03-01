@@ -45,7 +45,9 @@ module Rory
 
     def controller
       if klass = controller_class
-        klass.new(@request.merge(:dispatcher => self), @context)
+        request_for_delivery = @request.dup
+        request_for_delivery[:dispatcher] = self
+        klass.new(request_for_delivery, @context)
       end
     end
 
