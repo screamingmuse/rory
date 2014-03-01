@@ -53,6 +53,16 @@ describe Rory::Dispatcher do
         :in_scoped_controller => true # see Goose::LumpiesController in /spec/fixture_app
       }
     end
+
+    it "dispatches properly to a nested scoped controller" do
+      request[:route] = { :controller => 'rabbits', :module => 'goose/wombat' }
+      dispatcher.dispatch.should == {
+        :whatever => :yay,
+        :route => request[:route],
+        :dispatcher => dispatcher,
+        :in_scoped_controller => true # see Goose::Wombat::RabbitsController in /spec/fixture_app
+      }
+    end
   end
 
   describe "#route" do

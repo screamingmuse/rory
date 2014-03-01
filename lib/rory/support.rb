@@ -9,6 +9,13 @@ module Rory
       string = string.gsub(/(?:_|(\/))([a-z\d]*)/) { "#{$1}#{$2.capitalize}" }.gsub('/', '::')
     end
 
+    def constantize(string)
+      camelized = camelize(string)
+      camelized.split('::').inject(Object) { |scope, const|
+        scope.const_get(const)
+      }
+    end
+
     def require_all_files_in_directory(path)
       Dir[Pathname.new(path).join('**', '*.rb')].each do |file|
         require file

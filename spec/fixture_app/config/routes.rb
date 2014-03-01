@@ -5,5 +5,8 @@ Fixture::Application.set_routes do
   scope :module => 'goose' do
     match 'lumpies/:lump', :to => 'lumpies#show', :methods => [:get]
   end
+  scope :module => 'goose/wombat' do
+    match 'rabbits/:chew', :to => 'rabbits#chew', :methods => [:get]
+  end
   match '/', :to => 'root#vegetable', :methods => [:get]
 end

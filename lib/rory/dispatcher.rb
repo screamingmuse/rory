@@ -52,12 +52,10 @@ module Rory
     def controller_class
       if route
         controller_name = Rory::Support.camelize("#{route[:controller]}_controller")
-        const_scope = if route[:module]
-          Object.const_get(Rory::Support.camelize("#{route[:module]}"))
-        else
-          Object
+        if route[:module]
+          controller_name.prepend "#{Rory::Support.camelize("#{route[:module]}")}/"
         end
-        const_scope.const_get(controller_name)
+        Rory::Support.constantize(controller_name)
       end
     end
 
