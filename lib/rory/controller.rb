@@ -12,10 +12,11 @@ module Rory
       @route = routing[:route]
       @params = request.params
       @app = app
+      @locals = {}
     end
 
     def expose(hsh)
-      self.locals = hsh
+      locals.merge!(hsh)
     end
 
     def params
