@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Rory::Application do
   describe ".configure" do
     it 'yields the given block to self' do

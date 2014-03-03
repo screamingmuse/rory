@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Rory do
   describe '.application' do
     it 'is by default set to the Rory::Application instance' do

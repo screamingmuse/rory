@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Rory::Support do
   describe ".camelize" do
     it "camelizes given snake-case string" do

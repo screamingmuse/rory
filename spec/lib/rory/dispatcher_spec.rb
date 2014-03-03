@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe Rory::Dispatcher do
   describe "#redirect" do
     it "redirects to given path if path has scheme" do
