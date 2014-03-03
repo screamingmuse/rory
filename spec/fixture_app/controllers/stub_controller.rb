@@ -1,5 +1,5 @@
 class StubController
-  def initialize(args, context)
+  def initialize(args, routing, context)
     @args = args
   end
 

@@ -1,14 +1,28 @@
-require 'erb'
+require_relative 'renderer'
 
 module Rory
   # Interface for Controller class.  Subclass this to create controllers
   # with actions that will be called by the Dispatcher when a route matches.
   class Controller
-    def initialize(request, context = nil)
+    attr_accessor :locals
+
+    def initialize(request, routing, app = nil)
       @request = request
-      @route = request[:route]
+      @dispatcher = routing[:dispatcher]
+      @route = routing[:route]
       @params = request.params
-      @context = context
+      @app = app
+    end
+
+    def expose(hsh)
+      self.locals = hsh
+    end
+
+    def params
+      @converted_params ||= @params.inject({}) { |memo, (key, value)|
+        memo[key.to_sym] = memo[key.to_s] = value
+        memo
+      }
     end
 
     def route_template
@@ -19,27 +33,27 @@ module Rory
       nil
     end
 
-    def render(template, opts = {})
-      opts = { :layout => layout }.merge(opts)
-      file = view_path(template)
-      output = ERB.new(File.read(file)).result(binding)
-      if layout = opts[:layout]
-        output = render(File.join('layouts', layout.to_s), { :layout => false }) { output }
-      end
-      @body = output
+    def default_renderer_options
+      {
+        :layout => layout,
+        :locals => locals,
+        :app => @app,
+        :base_url => @request.script_name
+      }
     end
 
-    def view_path(template)
-      root = @context ? @context.root : Rory.root
-      File.expand_path(File.join('views', "#{template}.html.erb"), root)
+    def render(template_name, opts = {})
+      opts = default_renderer_options.merge(opts)
+      renderer = Rory::Renderer.new(template_name, opts)
+      @body = renderer.render
     end
 
     def redirect(path)
-      @response = @request[:dispatcher].redirect(path)
+      @response = @dispatcher.redirect(path)
     end
 
     def render_not_found
-      @response = @request[:dispatcher].render_not_found
+      @response = @dispatcher.render_not_found
     end
 
     def present

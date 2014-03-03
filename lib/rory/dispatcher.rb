@@ -3,13 +3,14 @@ module Rory
   # appropriate controller, after examining the routes.
   class Dispatcher
     attr_reader :request
-    def initialize(rack_request, context = nil)
+    def initialize(rack_request, app = nil)
       @request = rack_request
-      @context = context
+      @routing = {}
+      @app = app
     end
 
     def route
-      @request[:route] ||= get_route
+      @routing[:route] ||= get_route
     end
 
     def dispatch
@@ -45,9 +46,8 @@ module Rory
 
     def controller
       if klass = controller_class
-        request_for_delivery = @request.dup
-        request_for_delivery[:dispatcher] = self
-        klass.new(request_for_delivery, @context)
+        @routing.merge!(:dispatcher => self)
+        klass.new(request, @routing, @app)
       end
     end
 
@@ -77,7 +77,7 @@ module Rory
     end
 
     def route_map
-      @context ? @context.routes : []
+      @app ? @app.routes : []
     end
   end
 end

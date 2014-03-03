@@ -33,31 +33,29 @@ describe Rory::Dispatcher do
     end
 
     it "instantiates a controller with the parsed request and calls present" do
-      request[:route] = { :controller => 'stub' }
+      allow(dispatcher).to receive(:get_route).and_return({ :controller => 'stub' })
       dispatcher.dispatch.should == {
         :whatever => :yay,
-        :route => request[:route],
-        :dispatcher => dispatcher,
         :present_called => true # see StubController in /spec/fixture_app
       }
     end
 
     it "dispatches properly to a scoped controller" do
-      request[:route] = { :controller => 'lumpies', :module => 'goose' }
+      allow(dispatcher).to receive(:get_route).and_return({
+        :controller => 'lumpies', :module => 'goose'
+      })
       dispatcher.dispatch.should == {
         :whatever => :yay,
-        :route => request[:route],
-        :dispatcher => dispatcher,
         :in_scoped_controller => true # see Goose::LumpiesController in /spec/fixture_app
       }
     end
 
     it "dispatches properly to a nested scoped controller" do
-      request[:route] = { :controller => 'rabbits', :module => 'goose/wombat' }
+      allow(dispatcher).to receive(:get_route).and_return({
+        :controller => 'rabbits', :module => 'goose/wombat'
+      })
       dispatcher.dispatch.should == {
         :whatever => :yay,
-        :route => request[:route],
-        :dispatcher => dispatcher,
         :in_scoped_controller => true # see Goose::Wombat::RabbitsController in /spec/fixture_app
       }
     end
@@ -71,7 +69,7 @@ describe Rory::Dispatcher do
     end
 
     it "returns route from request if already set" do
-      @request[:route] = 'snaky pigeons'
+      @dispatcher.instance_variable_set(:@routing, { :route => 'snaky pigeons' })
       @dispatcher.route.should == 'snaky pigeons'
     end
 
