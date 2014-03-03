@@ -77,18 +77,22 @@ describe Rory::Controller do
   end
 
   describe "#present" do
-    it "calls action from route if exists on controller" do
+    it "calls filters and action from route if exists on controller" do
       controller = Rory::Controller.new(@request, @routing)
-      controller.stub(:render)
-      controller.should_receive('letsgo')
+      expect(controller).to receive('before_action').ordered
+      expect(controller).to receive('letsgo').ordered
+      expect(controller).to receive('after_action').ordered
+      expect(controller).to receive('render').ordered
       controller.present
     end
 
     it "doesn't try to call action from route if nonexistent on controller" do
       controller = Rory::Controller.new(@request, @routing)
-      controller.stub(:render)
-      controller.stub(:respond_to?).with('letsgo').and_return(false)
-      controller.should_receive('letsgo').never
+      allow(controller).to receive(:respond_to?).with('letsgo').and_return(false)
+      expect(controller).to receive('before_action').ordered
+      expect(controller).to receive('letsgo').never
+      expect(controller).to receive('after_action').ordered
+      expect(controller).to receive('render').ordered
       controller.present
     end
 

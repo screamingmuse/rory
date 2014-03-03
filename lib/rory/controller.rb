@@ -57,10 +57,22 @@ module Rory
       @response = @dispatcher.render_not_found
     end
 
+    # This method is called before the action method.
+    def before_action
+      #noop
+    end
+
+    # This method is called after the action method.
+    def after_action
+      #noop
+    end
+
     def present
       # if a method exists on the controller for the requested action, call it.
       action = @route[:action]
+      before_action
       self.send(action) if self.respond_to?(action)
+      after_action
 
       if @response
         # that method may have resulted in a response already being generated
