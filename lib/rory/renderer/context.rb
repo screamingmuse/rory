@@ -16,7 +16,7 @@ module Rory
       end
 
       def render(template_name, opts = {})
-        opts = { :layout => false, :app => @app }.merge(opts)
+        opts = { :layout => false, :app => @app, :base_url => @base_url }.merge(opts)
         renderer = Rory::Renderer.new(template_name, opts)
         renderer.render
       end
