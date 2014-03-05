@@ -1,16 +1,19 @@
 describe Rory::Controller do
   before :each do
     @routing = {
-      :route => {
-        :controller => 'test',
-        :action => 'letsgo'
-      }
+      :route => Rory::Route.new('', :to => 'test#letsgo')
     }
 
     @request = double('Rack::Request', {
       :params => { 'violet' => 'invisibility', :dash => 'superspeed' },
       :script_name => 'script_root'
     })
+  end
+
+  it_has_behavior 'path_generation' do
+    let(:path_generator) {
+      Rory::Controller.new(@request, @routing, Fixture::Application)
+    }
   end
 
   describe '#layout' do
@@ -49,7 +52,7 @@ describe Rory::Controller do
         :layout => 'pretend',
         :locals => { :a => 1 },
         :app => :scooby,
-        :base_url => 'script_root'
+        :base_path => 'script_root'
       }
       allow(Rory::Renderer).to receive(:new).
         with('also/fake', renderer_options).
@@ -73,6 +76,13 @@ describe Rory::Controller do
       dispatcher.should_receive(:render_not_found)
       controller = Rory::Controller.new(@request, @routing)
       controller.render_not_found
+    end
+  end
+
+  describe "#base_path" do
+    it "returns script_name from request" do
+      controller = Rory::Controller.new(@request, @routing)
+      expect(controller.base_path).to eq 'script_root'
     end
   end
 

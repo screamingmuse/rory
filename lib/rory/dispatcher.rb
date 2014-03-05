@@ -21,16 +21,6 @@ module Rory
       end
     end
 
-    def method
-      override_method = @request.params.delete('_method')
-      method = if override_method && ['put', 'patch', 'delete'].include?(override_method.downcase)
-        override_method
-      else
-        @request.request_method
-      end
-      method.downcase
-    end
-
     def redirect(path = '/')
       unless path =~ /\:\/\//
         path = "#{@request.scheme}://#{@request.host_with_port}#{path}"
@@ -53,30 +43,25 @@ module Rory
 
     def controller_class
       if route
-        controller_name = Rory::Support.camelize("#{route[:controller]}_controller")
-        if route[:module]
-          controller_name.prepend "#{Rory::Support.camelize("#{route[:module]}")}/"
+        controller_name = Rory::Support.camelize("#{route.controller}_controller")
+        if route.module
+          controller_name.prepend "#{Rory::Support.camelize("#{route.module}")}/"
         end
         Rory::Support.constantize(controller_name)
       end
     end
 
     def get_route
-      match = nil
-      mapped_route = route_map.detect do |route_hash|
-        path_name = @request.path_info[1..-1] || ''
-        match = route_hash[:regex].match(path_name)
-        methods = route_hash[:methods] || []
-        match && (methods.empty? || methods.include?(method.to_sym))
+      mapped_route = all_routes.detect do |route|
+        route.matches_request?(@request)
       end
       if mapped_route
-        symbolized_param_names = match.names.map { |name| name.to_sym }
-        @request.params.merge! Hash[symbolized_param_names.zip(match.captures)]
+        @request.params.merge! mapped_route.path_params(@request)
       end
       mapped_route
     end
 
-    def route_map
+    def all_routes
       @app ? @app.routes : []
     end
   end

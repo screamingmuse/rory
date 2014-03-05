@@ -66,19 +66,16 @@ describe Rory::Application do
   end
 
   describe ".routes" do
-    it "generates a routing table from route configuration" do
-      # note: we're comparing the inspected arrays here because the arrays
-      # won't be equal, despite appearing the same - this is because the Regexes
-      # are different objects.
-      Fixture::Application.routes.inspect.should == [
-        { :controller => 'foo', :action => 'bar', :regex => /^foo\/(?<id>[^\/]+)\/bar$/, :methods => [:get, :post] },
-        { :controller => 'monkeys', :action => nil, :regex => /^foo$/, :methods => [:put] },
-        { :controller => 'awesome', :action => 'rad', :regex => /^this\/(?<path>[^\/]+)\/is\/(?<very_awesome>[^\/]+)$/},
-        { :controller => 'lumpies', :action => 'show', :regex => /^lumpies\/(?<lump>[^\/]+)$/, :module => 'goose', :methods => [:get] },
-        { :controller => 'rabbits', :action => 'chew', :regex => /^rabbits\/(?<chew>[^\/]+)$/, :module => 'goose/wombat', :methods => [:get] },
-        { :controller => 'root', :action => 'vegetable', :regex => /^$/, :methods => [:get] },
-        { :controller => 'for_reals', :action => 'srsly', :regex => /^for_reals\/(?<parbles>[^\/]+)$/, :methods => [:get] }
-      ].inspect
+    it "generates a collection of routing objects from route configuration" do
+      expect(Fixture::Application.routes).to eq [
+        Rory::Route.new('foo/:id/bar', :to => 'foo#bar', :methods => [:get, :post]),
+        Rory::Route.new('foo', :to => 'monkeys', :methods => [:delete]),
+        Rory::Route.new('this/:path/is/:very_awesome', :to => 'awesome#rad'),
+        Rory::Route.new('lumpies/:lump', :to => 'lumpies#show', :methods => [:get], :module => 'goose'),
+        Rory::Route.new('rabbits/:chew', :to => 'rabbits#chew', :methods => [:get], :module => 'goose/wombat'),
+        Rory::Route.new('', :to => 'root#vegetable', :methods => [:get]),
+        Rory::Route.new('for_reals/:parbles', :to => 'for_reals#srsly', :methods => [:get])
+      ]
     end
   end
 

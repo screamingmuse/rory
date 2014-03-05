@@ -26,8 +26,8 @@ describe Rory::Renderer do
         "Don't Say A Bad Word: Poop!"
     end
 
-    it "exposes base_url to template" do
-      controller = Rory::Renderer.new('test/a_link', :base_url => 'spoo')
+    it "exposes base_path to template" do
+      controller = Rory::Renderer.new('test/a_link', :base_path => 'spoo')
       controller.render.should == 'You came from spoo.'
     end
   end

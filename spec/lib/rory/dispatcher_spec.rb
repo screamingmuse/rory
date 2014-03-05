@@ -33,7 +33,8 @@ describe Rory::Dispatcher do
     end
 
     it "instantiates a controller with the parsed request and calls present" do
-      allow(dispatcher).to receive(:get_route).and_return({ :controller => 'stub' })
+      route = Rory::Route.new('', :to => 'stub#index')
+      allow(dispatcher).to receive(:get_route).and_return(route)
       dispatcher.dispatch.should == {
         :whatever => :yay,
         :present_called => true # see StubController in /spec/fixture_app
@@ -41,9 +42,8 @@ describe Rory::Dispatcher do
     end
 
     it "dispatches properly to a scoped controller" do
-      allow(dispatcher).to receive(:get_route).and_return({
-        :controller => 'lumpies', :module => 'goose'
-      })
+      route = Rory::Route.new('', :to => 'lumpies#index', :module => 'goose')
+      allow(dispatcher).to receive(:get_route).and_return(route)
       dispatcher.dispatch.should == {
         :whatever => :yay,
         :in_scoped_controller => true # see Goose::LumpiesController in /spec/fixture_app
@@ -51,9 +51,8 @@ describe Rory::Dispatcher do
     end
 
     it "dispatches properly to a nested scoped controller" do
-      allow(dispatcher).to receive(:get_route).and_return({
-        :controller => 'rabbits', :module => 'goose/wombat'
-      })
+      route = Rory::Route.new('', :to => 'rabbits#index', :module => 'goose/wombat')
+      allow(dispatcher).to receive(:get_route).and_return(route)
       dispatcher.dispatch.should == {
         :whatever => :yay,
         :in_scoped_controller => true # see Goose::Wombat::RabbitsController in /spec/fixture_app
@@ -74,33 +73,35 @@ describe Rory::Dispatcher do
     end
 
     it "matches the path from the request to the routes table" do
-      @request.stub(:path_info => '/foo', :request_method => 'PUT')
-      @dispatcher.route.should == {
-        :controller => 'monkeys',
-        :action => nil,
-        :regex => /^foo$/,
-        :methods => [:put]
-      }
+      @request.stub(:path_info => '/foo/3/bar', :request_method => 'GET')
+      expect(@dispatcher.route).to eq Rory::Route.new('/foo/:id/bar', {
+        :to => 'foo#bar',
+        :methods => [:get, :post]
+      })
+    end
+
+    it "uses override method from params if exists" do
+      @request.stub(:path_info => '/foo', :params => { '_method' => 'delete' }, :request_method => 'PUT')
+      expect(@dispatcher.route).to eq Rory::Route.new('/foo', {
+        :to => 'monkeys',
+        :methods => [:delete]
+      })
     end
 
     it "works with empty path" do
       @request.stub(:path_info => '', :request_method => 'GET')
-      @dispatcher.route.should == {
-        :controller => 'root',
-        :action => 'vegetable',
-        :regex => /^$/,
+      expect(@dispatcher.route).to eq Rory::Route.new('/', {
+        :to => 'root#vegetable',
         :methods => [:get]
-      }
+      })
     end
 
     it "works with root url represented by slash" do
       @request.stub(:path_info => '/', :request_method => 'GET')
-      @dispatcher.route.should == {
-        :controller => 'root',
-        :action => 'vegetable',
-        :regex => /^$/,
+      expect(@dispatcher.route).to eq Rory::Route.new('/', {
+        :to => 'root#vegetable',
         :methods => [:get]
-      }
+      })
     end
 
     it "returns nil if no route found" do
@@ -120,38 +121,11 @@ describe Rory::Dispatcher do
 
     it "assigns named matches to params hash" do
       @request.stub(:path_info => '/this/some-thing_or-other/is/wicked', :request_method => 'GET')
-      @dispatcher.route.inspect.should == {
-        :controller => 'awesome',
-        :action => 'rad',
-        :regex => /^this\/(?<path>[^\/]+)\/is\/(?<very_awesome>[^\/]+)$/,
-      }.inspect
+      expect(@dispatcher.route).to eq Rory::Route.new('/this/:path/is/:very_awesome', {
+        :to => 'awesome#rad'
+      })
 
       @request.params.should == {:path=>"some-thing_or-other", :very_awesome=>"wicked"}
-    end
-  end
-
-  describe '#method' do
-    it 'returns downcased method from request' do
-      request = {:whatever => :yay}
-      request.stub(:path_info => '/', :request_method => 'POST', :params => {})
-      dispatcher = Rory::Dispatcher.new(request, Fixture::Application)
-      dispatcher.method.should == 'post'
-    end
-
-    ['put', 'patch', 'delete'].each do |override_method|
-      it "overrides request method if _method from params is #{override_method}" do
-        request = {:whatever => :yay}
-        request.stub(:path_info => '/', :request_method => 'POST', :params => {'_method' => override_method})
-        dispatcher = Rory::Dispatcher.new(request, Fixture::Application)
-        dispatcher.method.should == override_method
-      end
-    end
-
-    it 'ignores overriding _method if not valid' do
-      request = {:whatever => :yay}
-      request.stub(:path_info => '/', :request_method => 'POST', :params => {'_method' => 'rhubarb'})
-      dispatcher = Rory::Dispatcher.new(request, Fixture::Application)
-      dispatcher.method.should == 'post'
     end
   end
 end

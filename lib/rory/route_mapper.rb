@@ -29,17 +29,7 @@ module Rory
     def match(mask, options = {})
       options.merge!(@scope_options)
       options[:to] ||= mask.split('/').first
-      mask.gsub!(/^\//, '')
-      regex = /^#{mask.gsub(/:([\w_]+)/, "(?<\\1>\[\^\\\/\]+)")}$/
-      controller, action = options[:to].split('#')
-      route = {
-        :controller => controller,
-        :action => action,
-        :regex => regex
-      }
-      route[:module] = options[:module] if options[:module]
-      route[:methods] = options[:methods] if options[:methods]
-      @routes << route
+      @routes << Route.new(mask, options)
     end
   end
 end

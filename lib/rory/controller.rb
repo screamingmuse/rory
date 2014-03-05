@@ -1,9 +1,12 @@
-require_relative 'renderer'
+require 'rory/renderer'
+require 'rory/path_generation'
 
 module Rory
   # Interface for Controller class.  Subclass this to create controllers
   # with actions that will be called by the Dispatcher when a route matches.
   class Controller
+    include PathGeneration
+
     attr_accessor :locals
 
     def initialize(request, routing, app = nil)
@@ -27,11 +30,15 @@ module Rory
     end
 
     def route_template
-      "#{@route[:controller]}/#{@route[:action]}"
+      "#{@route.controller}/#{@route.action}"
     end
 
     def layout
       nil
+    end
+
+    def base_path
+      @request.script_name
     end
 
     def default_renderer_options
@@ -39,7 +46,7 @@ module Rory
         :layout => layout,
         :locals => locals,
         :app => @app,
-        :base_url => @request.script_name
+        :base_path => base_path
       }
     end
 
@@ -69,7 +76,7 @@ module Rory
 
     def present
       # if a method exists on the controller for the requested action, call it.
-      action = @route[:action]
+      action = @route.action
       before_action
       self.send(action) if self.respond_to?(action)
       after_action

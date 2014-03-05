@@ -4,6 +4,7 @@ require 'yaml'
 require 'sequel'
 require 'rory/application'
 require 'rory/dispatcher'
+require 'rory/route'
 require 'rory/support'
 require 'rory/controller'
 
