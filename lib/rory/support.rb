@@ -16,6 +16,14 @@ module Rory
       }
     end
 
+    def tokenize(string)
+      return nil if string.nil?
+      string = string.to_s.gsub(/&/, ' and ').
+        gsub(/[ \/]+/, '_').
+        gsub(/([a-z\d])([A-Z])/,'\1_\2').
+        downcase
+    end
+
     def require_all_files_in_directory(path)
       Dir[Pathname.new(path).join('**', '*.rb')].each do |file|
         require file

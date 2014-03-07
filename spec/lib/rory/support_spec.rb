@@ -46,4 +46,22 @@ describe Rory::Support do
       ).should == OrigamiDeliveryMan::UnderWhere::Skippy
     end
   end
+
+  describe '.tokenize' do
+    it 'creates snake_case version of string' do
+      described_class.tokenize('Albus Dumbledore & his_friend').should == 'albus_dumbledore_and_his_friend'
+    end
+
+    it 'uncamelizes' do
+      described_class.tokenize('thisStrangeJavalikeWord').should == 'this_strange_javalike_word'
+    end
+
+    it 'returns nil if given nil' do
+      described_class.tokenize(nil).should be_nil
+    end
+
+    it 'also handles symbols' do
+      described_class.tokenize(:yourFaceIsNice).should == 'your_face_is_nice'
+    end
+  end
 end
