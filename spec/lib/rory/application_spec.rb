@@ -69,11 +69,11 @@ describe Rory::Application do
     it "generates a collection of routing objects from route configuration" do
       expect(Fixture::Application.routes).to eq [
         Rory::Route.new('foo/:id/bar', :to => 'foo#bar', :methods => [:get, :post]),
-        Rory::Route.new('foo', :to => 'monkeys', :methods => [:delete]),
         Rory::Route.new('this/:path/is/:very_awesome', :to => 'awesome#rad'),
         Rory::Route.new('lumpies/:lump', :to => 'lumpies#show', :methods => [:get], :module => 'goose'),
         Rory::Route.new('rabbits/:chew', :to => 'rabbits#chew', :methods => [:get], :module => 'goose/wombat'),
         Rory::Route.new('', :to => 'root#vegetable', :methods => [:get]),
+        Rory::Route.new('', :to => 'root#no_vegetable', :methods => [:delete]),
         Rory::Route.new('for_reals/:parbles', :to => 'for_reals#srsly', :methods => [:get])
       ]
     end

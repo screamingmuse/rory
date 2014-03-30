@@ -54,7 +54,7 @@ module Rory
   private
 
     def method_from_request(request)
-      override_method = request.params.delete('_method')
+      override_method = request.params['_method']
       method = if override_method && ['put', 'patch', 'delete'].include?(override_method.downcase)
         override_method
       else

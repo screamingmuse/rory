@@ -56,6 +56,7 @@ module Rory
         route.matches_request?(@request)
       end
       if mapped_route
+        @request.params.delete('_method')
         @request.params.merge! mapped_route.path_params(@request)
       end
       mapped_route

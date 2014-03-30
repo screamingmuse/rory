@@ -81,11 +81,17 @@ describe Rory::Dispatcher do
     end
 
     it "uses override method from params if exists" do
-      @request.stub(:path_info => '/foo', :params => { '_method' => 'delete' }, :request_method => 'PUT')
-      expect(@dispatcher.route).to eq Rory::Route.new('/foo', {
-        :to => 'monkeys',
+      @request.stub(:path_info => '/', :params => { '_method' => 'delete' }, :request_method => 'PUT')
+      expect(@dispatcher.route).to eq Rory::Route.new('/', {
+        :to => 'root#no_vegetable',
         :methods => [:delete]
       })
+    end
+
+    it "deletes override method from params" do
+      @request.stub(:path_info => '/', :params => { '_method' => 'delete', 'goats' => 'not_sheep' }, :request_method => 'PUT')
+      @dispatcher.route
+      expect(@request.params).to eq('goats' => 'not_sheep')
     end
 
     it "works with empty path" do
