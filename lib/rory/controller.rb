@@ -11,11 +11,11 @@ module Rory
 
     class << self
       def before_actions
-        @before_actions ||= []
+        @before_actions ||= ancestor_actions(:before)
       end
 
       def after_actions
-        @after_actions ||= []
+        @after_actions ||= ancestor_actions(:after)
       end
 
       # Register a method to run before the action method.
@@ -26,6 +26,13 @@ module Rory
       # Register a method to run after the action method.
       def after_action(method_name)
         after_actions << method_name
+      end
+
+      def ancestor_actions(action_type)
+        (ancestors - [self]).reverse.map { |c|
+          query_method = :"#{action_type}_actions"
+          c.send(query_method) if c.respond_to?(query_method)
+        }.flatten.compact
       end
     end
 
@@ -107,11 +114,11 @@ module Rory
   private
 
     def call_filter_set(which_set, opts = {})
-      opts[:break_if_response] ||= true
+      opts = { :break_if_response => true }.merge(opts)
       filters = self.class.send(which_set)
       filters.each do |filter|
-        self.send(filter)
         break if @response && opts[:break_if_response]
+        self.send(filter)
       end
     end
 

@@ -93,6 +93,7 @@ describe Rory::Controller do
       expect(controller).to receive(:make_it_tasty).ordered
       expect(controller).to receive(:letsgo).ordered
       expect(controller).to receive(:rub_tummy).ordered
+      expect(controller).to receive(:sleep).ordered
       expect(controller).to receive(:render).ordered
       controller.present
     end
@@ -105,6 +106,7 @@ describe Rory::Controller do
       expect(controller).to receive(:make_it_tasty).never
       expect(controller).to receive(:letsgo).never
       expect(controller).to receive(:rub_tummy).never
+      expect(controller).to receive(:sleep).never
       expect(controller).to receive(:render).never
       controller.present
     end
@@ -118,6 +120,7 @@ describe Rory::Controller do
       expect(controller).to receive(:make_it_tasty).ordered
       expect(controller).to receive(:letsgo).ordered.and_call_original
       expect(controller).to receive(:rub_tummy).ordered
+      expect(controller).to receive(:sleep).ordered
       expect(controller).to receive(:render).never
       controller.present
     end
@@ -129,6 +132,7 @@ describe Rory::Controller do
       expect(controller).to receive(:make_it_tasty).ordered
       expect(controller).to receive(:letsgo).never
       expect(controller).to receive(:rub_tummy).ordered
+      expect(controller).to receive(:sleep).ordered
       expect(controller).to receive(:render).ordered
       controller.present
     end

@@ -1,5 +1,6 @@
-class FilteredController < Rory::Controller
-  before_action :pickle_something
+require_relative 'base_filtered_controller'
+
+class FilteredController < BaseFilteredController
   before_action :make_it_tasty
-  after_action :rub_tummy
+  after_action :sleep
 end
