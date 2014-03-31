@@ -96,7 +96,7 @@ module Rory
     end
 
     def use_middleware(*args, &block)
-      @middleware << [args, block]
+      middleware << [args, block]
     end
 
     def middleware
