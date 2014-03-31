@@ -95,8 +95,29 @@ module Rory
       @db.loggers << logger
     end
 
+    def use_middleware(*args, &block)
+      @middleware << [args, block]
+    end
+
+    def middleware
+      @middleware ||= []
+    end
+
+    def dispatcher
+      Rory::Dispatcher.rack_app(self)
+    end
+
+    def stack
+      builder = Rack::Builder.new
+      middleware.each do |args, block|
+        builder.use *args, &block
+      end
+      builder.run dispatcher
+      builder
+    end
+
     def call(env)
-      Rory::Dispatcher.new(Rack::Request.new(env), self).dispatch
+      stack.call(env)
     end
 
     def logger

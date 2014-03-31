@@ -111,4 +111,20 @@ describe Rory::Application do
       Fixture::Application.require_all_files
     end
   end
+
+  describe '.use_middleware' do
+    it 'adds the given middleware to the stack, retaining args and block' do
+      require Fixture::Application.root.join('lib', 'dummy_middleware')
+      Fixture::Application.use_middleware DummyMiddleware, :puppy do |dm|
+        dm.prefix = 'a salubrious'
+      end
+
+      expect(Fixture::Application.instance).to receive(:dispatcher).
+        and_return(dispatch_stack_mock = double)
+      expect(dispatch_stack_mock).to receive(:call).
+        with('a salubrious puppy')
+      Fixture::Application.call({})
+      Fixture::Application.middleware.clear
+    end
+  end
 end

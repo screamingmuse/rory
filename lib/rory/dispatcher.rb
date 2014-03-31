@@ -9,6 +9,12 @@ module Rory
       @app = app
     end
 
+    def self.rack_app(app)
+      Proc.new { |env|
+        new(Rack::Request.new(env), app).dispatch
+      }
+    end
+
     def route
       @routing[:route] ||= get_route
     end
