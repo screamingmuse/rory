@@ -9,6 +9,26 @@ module Rory
 
     attr_accessor :locals
 
+    class << self
+      def before_actions
+        @before_actions ||= []
+      end
+
+      def after_actions
+        @after_actions ||= []
+      end
+
+      # Register a method to run before the action method.
+      def before_action(method_name)
+        before_actions << method_name
+      end
+
+      # Register a method to run after the action method.
+      def after_action(method_name)
+        after_actions << method_name
+      end
+    end
+
     def initialize(request, routing, app = nil)
       @request = request
       @dispatcher = routing[:dispatcher]
@@ -64,22 +84,10 @@ module Rory
       @response = @dispatcher.render_not_found
     end
 
-    # This method is called before the action method.
-    def before_action
-      #noop
-    end
-
-    # This method is called after the action method.
-    def after_action
-      #noop
-    end
-
     def present
-      # if a method exists on the controller for the requested action, call it.
-      action = @route.action
-      before_action
-      self.send(action) if self.respond_to?(action)
-      after_action
+      # Call all before and after filters, and if a method exists on the
+      # controller for the requested action, call it in between.
+      call_filtered_action(@route.action)
 
       if @response
         # that method may have resulted in a response already being generated
@@ -93,6 +101,25 @@ module Rory
         # don't render the default template, in that case.
         @body ||= render(route_template)
         [200, {'Content-type' => 'text/html', 'charset' => 'UTF-8'}, [@body]]
+      end
+    end
+
+  private
+
+    def call_filter_set(which_set, opts = {})
+      opts[:break_if_response] ||= true
+      filters = self.class.send(which_set)
+      filters.each do |filter|
+        self.send(filter)
+        break if @response && opts[:break_if_response]
+      end
+    end
+
+    def call_filtered_action(action)
+      call_filter_set(:before_actions)
+      unless @response
+        self.send(action) if self.respond_to?(action)
+        call_filter_set(:after_actions, :break_if_response => false)
       end
     end
   end

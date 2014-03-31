@@ -88,21 +88,48 @@ describe Rory::Controller do
 
   describe "#present" do
     it "calls filters and action from route if exists on controller" do
-      controller = Rory::Controller.new(@request, @routing)
-      expect(controller).to receive('before_action').ordered
-      expect(controller).to receive('letsgo').ordered
-      expect(controller).to receive('after_action').ordered
-      expect(controller).to receive('render').ordered
+      controller = FilteredController.new(@request, @routing)
+      expect(controller).to receive(:pickle_something).ordered
+      expect(controller).to receive(:make_it_tasty).ordered
+      expect(controller).to receive(:letsgo).ordered
+      expect(controller).to receive(:rub_tummy).ordered
+      expect(controller).to receive(:render).ordered
+      controller.present
+    end
+
+    it "short circuits if a before_action generates a response" do
+      controller = FilteredController.new(@request, @routing)
+      def controller.pickle_something
+        @response = 'stuff'
+      end
+      expect(controller).to receive(:make_it_tasty).never
+      expect(controller).to receive(:letsgo).never
+      expect(controller).to receive(:rub_tummy).never
+      expect(controller).to receive(:render).never
+      controller.present
+    end
+
+    it "does not short circuit after_actions if action generates response" do
+      controller = FilteredController.new(@request, @routing)
+      def controller.letsgo
+        @response = 'stuff'
+      end
+      expect(controller).to receive(:pickle_something).ordered
+      expect(controller).to receive(:make_it_tasty).ordered
+      expect(controller).to receive(:letsgo).ordered.and_call_original
+      expect(controller).to receive(:rub_tummy).ordered
+      expect(controller).to receive(:render).never
       controller.present
     end
 
     it "doesn't try to call action from route if nonexistent on controller" do
-      controller = Rory::Controller.new(@request, @routing)
+      controller = FilteredController.new(@request, @routing)
       allow(controller).to receive(:respond_to?).with('letsgo').and_return(false)
-      expect(controller).to receive('before_action').ordered
-      expect(controller).to receive('letsgo').never
-      expect(controller).to receive('after_action').ordered
-      expect(controller).to receive('render').ordered
+      expect(controller).to receive(:pickle_something).ordered
+      expect(controller).to receive(:make_it_tasty).ordered
+      expect(controller).to receive(:letsgo).never
+      expect(controller).to receive(:rub_tummy).ordered
+      expect(controller).to receive(:render).ordered
       controller.present
     end
 
