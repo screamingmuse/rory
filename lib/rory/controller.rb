@@ -19,13 +19,13 @@ module Rory
       end
 
       # Register a method to run before the action method.
-      def before_action(method_name)
-        before_actions << method_name
+      def before_action(method_name, opts = {})
+        before_actions << opts.merge(:method_name => method_name)
       end
 
       # Register a method to run after the action method.
-      def after_action(method_name)
-        after_actions << method_name
+      def after_action(method_name, opts = {})
+        after_actions << opts.merge(:method_name => method_name)
       end
 
       def ancestor_actions(action_type)
@@ -94,7 +94,7 @@ module Rory
     def present
       # Call all before and after filters, and if a method exists on the
       # controller for the requested action, call it in between.
-      call_filtered_action(@route.action)
+      call_filtered_action(@route.action.to_sym)
 
       if @response
         # that method may have resulted in a response already being generated
@@ -113,20 +113,30 @@ module Rory
 
   private
 
-    def call_filter_set(which_set, opts = {})
-      opts = { :break_if_response => true }.merge(opts)
+    def call_filter_for_action?(filter, action)
+      (filter[:only].nil? || filter[:only].include?(action)) &&
+        (filter[:except].nil? || !filter[:except].include?(action))
+    end
+
+    def get_relevant_filters(which_set, action)
       filters = self.class.send(which_set)
+      filters.select { |filter| call_filter_for_action?(filter, action) }
+    end
+
+    def call_filter_set(which_set, action, opts = {})
+      opts = { :break_if_response => true }.merge(opts)
+      filters = get_relevant_filters(which_set, action)
       filters.each do |filter|
         break if @response && opts[:break_if_response]
-        self.send(filter)
+        self.send(filter[:method_name])
       end
     end
 
     def call_filtered_action(action)
-      call_filter_set(:before_actions)
+      call_filter_set(:before_actions, action)
       unless @response
         self.send(action) if self.respond_to?(action)
-        call_filter_set(:after_actions, :break_if_response => false)
+        call_filter_set(:after_actions, action, :break_if_response => false)
       end
     end
   end
