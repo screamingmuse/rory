@@ -14,7 +14,7 @@ namespace :db do
 
   desc "Drop and recreate a database"
   task :purge => :load_extensions do
-    config = RORY_APP.db_config[ENV['RORY_STAGE']]
+    config = RORY_APP.db_config[ENV['RORY_ENV']]
     drop_database_from_config(config)
     create_database_from_config(config)
   end
@@ -43,7 +43,7 @@ namespace :db do
 
     desc "Purges test database"
     task :purge => :load_extensions do
-      ENV['RORY_STAGE'] = 'test'
+      ENV['RORY_ENV'] = 'test'
       Rake::Task["db:purge"].invoke
     end
 

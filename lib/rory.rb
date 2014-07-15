@@ -7,6 +7,7 @@ require 'rory/dispatcher'
 require 'rory/route'
 require 'rory/support'
 require 'rory/controller'
+require 'support/env_deprecation'
 
 module Rory
   class << self
