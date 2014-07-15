@@ -33,7 +33,7 @@ EOF
   s.add_runtime_dependency 'thin', '~> 1.0'
 
   s.add_development_dependency 'rake'
-  s.add_development_dependency 'rspec'
+  s.add_development_dependency 'rspec', '~> 2'
   s.add_development_dependency 'capybara'
   s.add_development_dependency 'yard'
   s.add_development_dependency 'reek'
