@@ -1,4 +1,9 @@
-ENV['RORY_STAGE'] ||= ENV['RACK_ENV'] || 'development'
+if ENV['RORY_STAGE']
+  puts "\n\tDEPRECATION: use 'RORY_ENV' instead of 'RORY_STAGE'\n\n"
+  ENV['RORY_ENV'] = ENV['RORY_STAGE']
+end
+
+ENV['RACK_ENV'] || 'development'
 
 require 'yaml'
 require 'sequel'

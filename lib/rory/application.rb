@@ -89,7 +89,7 @@ module Rory
       )
     end
 
-    def connect_db(environment = ENV['RORY_STAGE'])
+    def connect_db(environment = ENV['RORY_ENV'])
       @db_config = load_config_data(:database)
       @db = Sequel.connect(@db_config[environment.to_s])
       @db.loggers << logger
@@ -123,7 +123,7 @@ module Rory
     def logger
       @logger ||= begin
         Dir.mkdir('log') unless File.exists?('log')
-        file = File.open(File.join('log', "#{ENV['RORY_STAGE']}.log"), 'a')
+        file = File.open(File.join('log', "#{ENV['RORY_ENV']}.log"), 'a')
         Logger.new(file)
       end
     end
