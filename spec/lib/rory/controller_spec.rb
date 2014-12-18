@@ -26,12 +26,11 @@ describe Rory::Controller do
   describe '#params' do
     it 'returns params from request, converted for indifferent key access' do
       controller = Rory::Controller.new(@request, @routing)
-      expect(controller.params).to eq({
-        'violet' => 'invisibility',
-        'dash' => 'superspeed',
-        :violet => 'invisibility',
-        :dash => 'superspeed'
-      })
+
+      expect( controller.params[:violet]  ) .to eq( 'invisibility' )
+      expect( controller.params['violet'] ) .to eq( 'invisibility' )
+      expect( controller.params[:dash]    ) .to eq( 'superspeed'   )
+      expect( controller.params['dash']   ) .to eq( 'superspeed'   )
     end
   end
 
