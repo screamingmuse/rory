@@ -50,10 +50,10 @@ module Rory
     end
 
     def params
-      @converted_params ||= @params.inject({}) { |memo, (key, value)|
-        memo[key.to_sym] = memo[key.to_s] = value
-        memo
-      }
+      @converted_params ||=
+        @params.each_with_object({}) do |(key, value), hash|
+          hash[key.to_sym] = hash[key.to_s] = value
+        end
     end
 
     def route_template
