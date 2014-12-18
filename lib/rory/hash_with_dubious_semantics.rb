@@ -1,8 +1,11 @@
 require 'delegate'
 
 module Rory
-  # TODO: add some specs directly around this class; 
-  # at the moment, it's only tested via controller_spec
+  # ActiveSupport's HashWithIndifferentAccess put it best:
+  #
+  # "This class has dubious semantics and we only have it so that people
+  # can write params[:key] instead of params[‘key’] and they get the
+  # same value for both keys."
   class HashWithDubiousSemantics < SimpleDelegator
     def initialize(hash)
       fail ArgumentError unless hash.is_a?(Hash)
@@ -15,17 +18,26 @@ module Rory
       __getobj__[actual_key]
     end
 
-    # TODO: see previous TODO
-    # def []=(key)
-    # end
+    def []=(key, value)
+      actual_key = convert_key(key)
+      new_value = convert_value(value)
+      __getobj__[actual_key] = new_value
+    end
+
+    def inspect
+      "#<#{self.class.name} @hash=#{super}>"
+    end
 
     private
 
-    # TODO: Make this recursive
     def convert_hash(hash)
-      hash.each_with_object({}) do |(key, value), hash|
-        new_key = convert_key(key)
-        hash[new_key] = value
+      return hash if hash.empty?
+
+      hash.each_with_object({}) do |(key, value), converted_hash|
+        new_key   = convert_key(key)
+        new_value = convert_value(value)
+
+        converted_hash[new_key] = new_value
       end
     end
 
@@ -33,6 +45,13 @@ module Rory
       case key
       when Symbol ; key.to_s
       else        ; key
+      end
+    end
+
+    def convert_value(value)
+      case value
+      when Hash ; HashWithDubiousSemantics.new(convert_hash(value))
+      else      ; value
       end
     end
   end
