@@ -50,10 +50,7 @@ module Rory
     end
 
     def params
-      @converted_params ||=
-        @params.each_with_object({}) do |(key, value), hash|
-          hash[key.to_sym] = hash[key.to_s] = value
-        end
+      @converted_params ||= Rory::HashWithDubiousSemantics.new(@params)
     end
 
     def route_template
