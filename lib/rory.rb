@@ -1,7 +1,7 @@
 ENV['RORY_ENV'] ||= ENV['RORY_STAGE'] || ENV['RACK_ENV'] || 'development'
 
 if ENV['RORY_STAGE']
-  puts "\n\tWARNING: use of 'RORY_STAGE' is ignored. Use 'RORY_STAGE' instead.\n\n"
+  puts "\n\tWARNING: use of 'RORY_STAGE' is ignored. Use 'RORY_ENV' instead.\n\n"
 end
 
 require 'yaml'
