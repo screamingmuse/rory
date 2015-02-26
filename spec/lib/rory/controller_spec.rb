@@ -142,6 +142,23 @@ describe Rory::Controller do
       controller.present
     end
 
+    it "filters before and after actions on :if and :unless" do
+      @routing[:route] = Rory::Route.new('', :to => 'test#eat')
+      @request = double('Rack::Request', {
+        :params => { 'horses' => 'missing' },
+        :script_name => 'script_root'
+      })
+      controller = FilteredController.new(@request, @routing)
+      expect(controller).to receive(:make_it_tasty).never
+      expect(controller).to receive(:make_it_nutritious).ordered
+      expect(controller).to receive(:eat).ordered
+      expect(controller).to receive(:rub_tummy).never
+      expect(controller).to receive(:smile).ordered
+      expect(controller).to receive(:sleep).never
+      expect(controller).to receive(:render).ordered
+      controller.present
+    end
+
     it "just returns a response if @response exists" do
       controller = Rory::Controller.new(@request, @routing)
       controller.instance_variable_set(:@response, 'Forced response')

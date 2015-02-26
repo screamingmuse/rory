@@ -112,7 +112,29 @@ module Rory
 
     def call_filter_for_action?(filter, action)
       (filter[:only].nil? || filter[:only].include?(action)) &&
-        (filter[:except].nil? || !filter[:except].include?(action))
+        (filter[:except].nil? || !filter[:except].include?(action)) &&
+        filter_conditions_pass?(filter, :if) &&
+        filter_conditions_pass?(filter, :unless)
+    end
+
+    def filter_conditions_pass?(filter, type)
+      filter_conditions = Array(filter[type])
+      filter_conditions.compact.all? { |condition|
+        result = assess_filter_condition(condition)
+        if type == :unless
+          result = !result
+        end
+        result
+      }
+    end
+
+    def assess_filter_condition(condition)
+      case condition
+      when Symbol
+        self.send(condition)
+      when Proc
+        instance_exec(&condition)
+      end
     end
 
     def get_relevant_filters(which_set, action)
