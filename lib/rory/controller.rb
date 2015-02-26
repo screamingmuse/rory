@@ -50,7 +50,10 @@ module Rory
     end
 
     def params
-      @converted_params ||= Rory::HashWithDubiousSemantics.new(@params)
+      @converted_params ||= @params.inject({}) { |memo, (key, value)|
+        memo[key.to_sym] = memo[key.to_s] = value
+        memo
+      }
     end
 
     def route_template

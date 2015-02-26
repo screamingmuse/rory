@@ -6,7 +6,6 @@ end
 
 require 'yaml'
 require 'sequel'
-require 'rory/hash_with_dubious_semantics'
 require 'rory/application'
 require 'rory/dispatcher'
 require 'rory/route'
