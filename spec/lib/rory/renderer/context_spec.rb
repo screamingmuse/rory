@@ -19,7 +19,7 @@ describe Rory::Renderer::Context do
       allow(Rory::Renderer).to receive(:new).
         with('not/real', passed_renderer_options).
         and_return(double('Renderer', :render => 'Here ya go'))
-      renderer_context.render('not/real').should == 'Here ya go'
+      expect(renderer_context.render('not/real')).to eq('Here ya go')
     end
 
     it "does not pass locals or layout to sub-renderer" do
@@ -35,7 +35,7 @@ describe Rory::Renderer::Context do
       allow(Rory::Renderer).to receive(:new).
         with('also/fake', passed_renderer_options).
         and_return(double('Renderer', :render => 'Scamazing!'))
-      renderer_context.render('also/fake').should == 'Scamazing!'
+      expect(renderer_context.render('also/fake')).to eq('Scamazing!')
     end
   end
 end

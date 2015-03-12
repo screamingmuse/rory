@@ -29,83 +29,83 @@ describe Rory::Dispatcher do
   describe "#json_requested?" do
     it "returns true if extension is 'json'" do
       allow(subject).to receive(:extension).and_return("json")
-      expect(subject.json_requested?).to be_true
+      expect(subject.json_requested?).to be_truthy
     end
 
     it "returns false if extension is not 'json'" do
       allow(subject).to receive(:extension).and_return("pachyderms")
-      expect(subject.json_requested?).to be_false
+      expect(subject.json_requested?).to be_falsey
     end
   end
 
   describe "#redirect" do
     it "redirects to given path if path has scheme" do
       redirection = subject.redirect('http://example.example')
-      redirection[0..1].should == [
+      expect(redirection[0..1]).to eq([
         302, {'Content-type' => 'text/html', 'Location'=> 'http://example.example' }
-      ]
+      ])
     end
 
     it "adds request host and scheme and redirects if path has no scheme" do
-      request.stub('scheme' => 'happy', 'host_with_port' => 'somewhere.yay')
+      allow(request).to receive_messages('scheme' => 'happy', 'host_with_port' => 'somewhere.yay')
       redirection = subject.redirect('/example')
-      redirection[0..1].should == [
+      expect(redirection[0..1]).to eq([
         302, {'Content-type' => 'text/html', 'Location'=> 'happy://somewhere.yay/example' }
-      ]
+      ])
     end
   end
 
   describe "#dispatch" do
     let(:request) { { :whatever => :yay } }
     before(:each) do
-      request.stub(:path_info => '/', :request_method => 'GET', :params => {})
+      allow(request).to receive_messages(:path_info => '/', :request_method => 'GET', :params => {})
     end
 
     it "renders a 404 if the requested path is invalid" do
-      subject.stub(:get_route).and_return(nil)
-      subject.dispatch[0..1].should == [404, {"Content-type"=>"text/html"}]
+      allow(subject).to receive(:get_route).and_return(nil)
+      expect(subject.dispatch[0..1]).to eq([404, {"Content-type"=>"text/html"}])
     end
 
     it "instantiates a controller with the parsed request and calls present" do
       route = Rory::Route.new('', :to => 'stub#index')
       allow(subject).to receive(:get_route).and_return(route)
-      subject.dispatch.should == {
+      expect(subject.dispatch).to eq({
         :whatever => :yay,
         :present_called => true # see StubController in /spec/fixture_app
-      }
+      })
     end
 
     it "dispatches properly to a scoped controller" do
       route = Rory::Route.new('', :to => 'lumpies#index', :module => 'goose')
       allow(subject).to receive(:get_route).and_return(route)
-      subject.dispatch.should == {
+      expect(subject.dispatch).to eq({
         :whatever => :yay,
         :in_scoped_controller => true # see Goose::LumpiesController in /spec/fixture_app
-      }
+      })
     end
 
     it "dispatches properly to a nested scoped controller" do
       route = Rory::Route.new('', :to => 'rabbits#index', :module => 'goose/wombat')
       allow(subject).to receive(:get_route).and_return(route)
-      subject.dispatch.should == {
+      expect(subject.dispatch).to eq({
         :whatever => :yay,
         :in_scoped_controller => true # see Goose::Wombat::RabbitsController in /spec/fixture_app
-      }
+      })
     end
   end
 
   describe "#route" do
     before(:each) do
-      request.stub(:params => {})
+      allow(request).to receive_messages(:params => {})
     end
 
     it "returns route from request if already set" do
       subject.instance_variable_set(:@routing, { :route => 'snaky pigeons' })
-      subject.route.should == 'snaky pigeons'
+      expect(subject.route).to eq('snaky pigeons')
     end
 
     it "matches the path from the request to the routes table" do
-      request.stub(:path_info => '/foo/3/bar', :request_method => 'GET')
+      allow(request).to receive_messages(:path_info => '/foo/3/bar', :request_method => 'GET')
       expect(subject.route).to eq Rory::Route.new('/foo/:id/bar', {
         :to => 'foo#bar',
         :methods => [:get, :post]
@@ -113,7 +113,7 @@ describe Rory::Dispatcher do
     end
 
     it "ignores extensions when matching path to routes table" do
-      request.stub(:path_info => '/foo/3/bar.csv', :request_method => 'GET')
+      allow(request).to receive_messages(:path_info => '/foo/3/bar.csv', :request_method => 'GET')
       expect(subject.extension).to eq('csv')
       expect(subject.route).to eq Rory::Route.new('/foo/:id/bar', {
         :to => 'foo#bar',
@@ -122,7 +122,7 @@ describe Rory::Dispatcher do
     end
 
     it "uses override method from params if exists" do
-      request.stub(:path_info => '/', :params => { '_method' => 'delete' }, :request_method => 'PUT')
+      allow(request).to receive_messages(:path_info => '/', :params => { '_method' => 'delete' }, :request_method => 'PUT')
       expect(subject.route).to eq Rory::Route.new('/', {
         :to => 'root#no_vegetable',
         :methods => [:delete]
@@ -130,13 +130,13 @@ describe Rory::Dispatcher do
     end
 
     it "deletes override method from params" do
-      request.stub(:path_info => '/', :params => { '_method' => 'delete', 'goats' => 'not_sheep' }, :request_method => 'PUT')
+      allow(request).to receive_messages(:path_info => '/', :params => { '_method' => 'delete', 'goats' => 'not_sheep' }, :request_method => 'PUT')
       subject.route
       expect(request.params).to eq('goats' => 'not_sheep')
     end
 
     it "works with empty path" do
-      request.stub(:path_info => '', :request_method => 'GET')
+      allow(request).to receive_messages(:path_info => '', :request_method => 'GET')
       expect(subject.route).to eq Rory::Route.new('/', {
         :to => 'root#vegetable',
         :methods => [:get]
@@ -144,7 +144,7 @@ describe Rory::Dispatcher do
     end
 
     it "works with root url represented by slash" do
-      request.stub(:path_info => '/', :request_method => 'GET')
+      allow(request).to receive_messages(:path_info => '/', :request_method => 'GET')
       expect(subject.route).to eq Rory::Route.new('/', {
         :to => 'root#vegetable',
         :methods => [:get]
@@ -152,27 +152,27 @@ describe Rory::Dispatcher do
     end
 
     it "returns nil if no route found" do
-      request.stub(:path_info => '/umbrellas', :request_method => 'GET')
-      subject.route.should be_nil
+      allow(request).to receive_messages(:path_info => '/umbrellas', :request_method => 'GET')
+      expect(subject.route).to be_nil
     end
 
     it "returns nil if no context" do
       subject = Rory::Dispatcher.new(request)
-      subject.route.should be_nil
+      expect(subject.route).to be_nil
     end
 
     it "returns nil if route found but method is not allowed" do
-      request.stub(:path_info => '/foo', :request_method => 'GET')
-      subject.route.should be_nil
+      allow(request).to receive_messages(:path_info => '/foo', :request_method => 'GET')
+      expect(subject.route).to be_nil
     end
 
     it "assigns named matches to params hash" do
-      request.stub(:path_info => '/this/some-thing_or-other/is/wicked', :request_method => 'GET')
+      allow(request).to receive_messages(:path_info => '/this/some-thing_or-other/is/wicked', :request_method => 'GET')
       expect(subject.route).to eq Rory::Route.new('/this/:path/is/:very_awesome', {
         :to => 'awesome#rad'
       })
 
-      request.params.should == {:path=>"some-thing_or-other", :very_awesome=>"wicked"}
+      expect(request.params).to eq({:path=>"some-thing_or-other", :very_awesome=>"wicked"})
     end
   end
 end

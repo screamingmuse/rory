@@ -19,7 +19,7 @@ describe Rory::Controller do
   describe '#layout' do
     it 'defaults to nil' do
       controller = Rory::Controller.new(@request, @routing)
-      controller.layout.should be_nil
+      expect(controller.layout).to be_nil
     end
   end
 
@@ -38,7 +38,7 @@ describe Rory::Controller do
   describe "#redirect" do
     it "delegates to dispatcher from request" do
       @routing[:dispatcher] = dispatcher = double
-      dispatcher.should_receive(:redirect).with(:whatever)
+      expect(dispatcher).to receive(:redirect).with(:whatever)
       controller = Rory::Controller.new(@request, @routing)
       controller.redirect(:whatever)
     end
@@ -47,7 +47,7 @@ describe Rory::Controller do
   describe "#render_not_found" do
     it "delegates to dispatcher from request" do
       @routing[:dispatcher] = dispatcher = double
-      dispatcher.should_receive(:render_not_found)
+      expect(dispatcher).to receive(:render_not_found)
       controller = Rory::Controller.new(@request, @routing)
       controller.render_not_found
     end
@@ -96,12 +96,11 @@ describe Rory::Controller do
 
     it "doesn't try to call action from route if nonexistent on controller" do
       controller = FilteredController.new(@request, @routing)
-      allow(controller).to receive(:respond_to?).with(:letsgo).and_return(false)
-      expect(controller).to receive(:letsgo).never
+      allow(@routing[:route]).to receive(:action).and_return('no worries')
       [:pickle_something, :make_it_tasty, :rub_tummy, :sleep, :render].each do |m|
         expect(controller).to receive(m).ordered
       end
-      controller.present
+      expect { controller.present }.not_to raise_error
     end
 
     it "filters before and after actions on :only and :except" do
@@ -137,20 +136,20 @@ describe Rory::Controller do
     it "just returns a response if @response exists" do
       controller = Rory::Controller.new(@request, @routing)
       controller.instance_variable_set(:@response, 'Forced response')
-      controller.present.should == 'Forced response'
+      expect(controller.present).to eq('Forced response')
     end
 
     it "sends a previously set @body to render" do
       controller = Rory::Controller.new(@request, @routing)
       controller.instance_variable_set(:@body, 'Forced body')
       allow(controller).to receive(:render).with(:body => 'Forced body').and_return("Forced response")
-      controller.present.should == 'Forced response'
+      expect(controller.present).to eq('Forced response')
     end
 
     it "returns the result of render" do
       controller = Rory::Controller.new(@request, @routing)
       allow(controller).to receive(:render).with(:body => nil).and_return("The response")
-      controller.present.should == 'The response'
+      expect(controller.present).to eq('The response')
     end
   end
 
@@ -159,21 +158,21 @@ describe Rory::Controller do
       controller = Rory::Controller.new(@request, @routing)
       allow(controller).to receive(:default_content_type).and_return("a prison")
       allow(controller).to receive(:generate_for_render).and_return("Valoop!")
-      controller.render.should == [
+      expect(controller.render).to eq([
         200,
         {'Content-type' => 'a prison', 'charset' => 'UTF-8'},
         ["Valoop!"]
-      ]
+      ])
     end
 
     it "returns given body as a rack response" do
       controller = Rory::Controller.new(@request, @routing)
       allow(controller).to receive(:default_content_type).and_return("snooj/woz")
-      controller.render(:body => 'Forced body').should == [
+      expect(controller.render(:body => 'Forced body')).to eq([
         200,
         {'Content-type' => 'snooj/woz', 'charset' => 'UTF-8'},
         ["Forced body"]
-      ]
+      ])
     end
   end
 
@@ -189,19 +188,19 @@ describe Rory::Controller do
     it "renders and returns the default template if not json" do
       controller = Rory::Controller.new(@request, @routing)
       allow(controller).to receive(:generate_body_from_template).with("test/letsgo", {}).and_return("Whee")
-      controller.generate_for_render.should == "Whee"
+      expect(controller.generate_for_render).to eq("Whee")
     end
 
     it "renders and returns the given template if not json" do
       controller = Rory::Controller.new(@request, @routing)
       allow(controller).to receive(:generate_body_from_template).with("engines", {}).and_return("Oh dear")
-      controller.generate_for_render(:template => 'engines').should == "Oh dear"
+      expect(controller.generate_for_render(:template => 'engines')).to eq("Oh dear")
     end
 
     it "returns json version of given json object if json" do
       controller = Rory::Controller.new(@request, @routing)
       allow(controller).to receive(:generate_json_from_object).with(:an_object, {}).and_return("Oh dear")
-      controller.generate_for_render(:json => :an_object).should == "Oh dear"
+      expect(controller.generate_for_render(:json => :an_object)).to eq("Oh dear")
     end
   end
 
@@ -209,14 +208,14 @@ describe Rory::Controller do
     it "returns given object as json" do
       controller = Rory::Controller.new(@request, @routing)
       object = double(:to_json => :jsonified)
-      controller.generate_json_from_object(object).should == :jsonified
+      expect(controller.generate_json_from_object(object)).to eq(:jsonified)
     end
   end
 
   describe "#generate_body_from_template" do
     it "returns rendered template with given name" do
       controller = Rory::Controller.new(@request, @routing)
-      controller.generate_body_from_template('test/letsgo').should == "Let's go content"
+      expect(controller.generate_body_from_template('test/letsgo')).to eq("Let's go content")
     end
 
     it "returns renderer output" do
@@ -224,7 +223,7 @@ describe Rory::Controller do
       allow(Rory::Renderer).to receive(:new).
         with('not/real', controller.default_renderer_options).
         and_return(double('Renderer', :render => 'Here ya go'))
-      controller.generate_body_from_template('not/real').should == 'Here ya go'
+      expect(controller.generate_body_from_template('not/real')).to eq('Here ya go')
     end
 
     it "passes layout, exposed locals, and app to renderer" do
@@ -240,7 +239,7 @@ describe Rory::Controller do
       allow(Rory::Renderer).to receive(:new).
         with('also/fake', renderer_options).
         and_return(double('Renderer', :render => 'Scamazing!'))
-      controller.generate_body_from_template('also/fake').should == 'Scamazing!'
+      expect(controller.generate_body_from_template('also/fake')).to eq('Scamazing!')
     end
   end
 
@@ -248,13 +247,13 @@ describe Rory::Controller do
     it "returns 'text/html' if not json" do
       controller = Rory::Controller.new(@request, @routing)
       allow(controller).to receive(:json_requested?).and_return(false)
-      controller.default_content_type.should == 'text/html'
+      expect(controller.default_content_type).to eq('text/html')
     end
 
     it "returns 'application/json' if json requested" do
       controller = Rory::Controller.new(@request, @routing)
       allow(controller).to receive(:json_requested?).and_return(true)
-      controller.default_content_type.should == 'application/json'
+      expect(controller.default_content_type).to eq('application/json')
     end
   end
 end
