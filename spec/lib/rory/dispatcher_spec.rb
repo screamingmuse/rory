@@ -26,6 +26,18 @@ describe Rory::Dispatcher do
     end
   end
 
+  describe "#json_requested?" do
+    it "returns true if extension is 'json'" do
+      allow(subject).to receive(:extension).and_return("json")
+      expect(subject.json_requested?).to be_true
+    end
+
+    it "returns false if extension is not 'json'" do
+      allow(subject).to receive(:extension).and_return("pachyderms")
+      expect(subject.json_requested?).to be_false
+    end
+  end
+
   describe "#redirect" do
     it "redirects to given path if path has scheme" do
       redirection = subject.redirect('http://example.example')

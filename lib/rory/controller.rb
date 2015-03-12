@@ -8,6 +8,7 @@ module Rory
     include PathGeneration
 
     attr_accessor :locals
+    attr_reader :dispatcher
 
     class << self
       def before_actions
@@ -45,6 +46,10 @@ module Rory
       @locals = {}
     end
 
+    def json_requested?
+      dispatcher.json_requested?
+    end
+
     def expose(hsh)
       locals.merge!(hsh)
     end
@@ -77,18 +82,64 @@ module Rory
       }
     end
 
-    def render(template_name, opts = {})
+    def extract_options(options_or_template, opts = {})
+      if options_or_template.is_a?(Hash)
+        options_or_template
+      else
+        opts.merge(:template => options_or_template)
+      end
+    end
+
+    def set_response_defaults(opts)
+      opts[:content_type] ||= default_content_type
+      opts[:status] ||= 200
+      opts[:headers] = {
+        'Content-type' => default_content_type,
+        'charset' => 'UTF-8'
+      }.merge(opts[:headers] || {})
+    end
+
+    def render(options_or_template = nil, opts = {})
+      opts = extract_options(options_or_template, opts)
+      set_response_defaults(opts)
+      opts[:body] ||= generate_for_render(opts)
+      @response = [opts[:status], opts[:headers], [opts[:body]]]
+    end
+
+    def generate_json_from_object(object, opts = {})
+      object.to_json
+    end
+
+    def generate_for_render(opts = {})
+      object, template = opts.delete(:json), opts.delete(:template)
+      if object
+        generate_json_from_object(object, opts)
+      else
+        template ||= route_template
+        generate_body_from_template(template, opts)
+      end
+    end
+
+    def generate_body_from_template(template_name, opts = {})
       opts = default_renderer_options.merge(opts)
       renderer = Rory::Renderer.new(template_name, opts)
-      @body = renderer.render
+      renderer.render
     end
 
     def redirect(path)
-      @response = @dispatcher.redirect(path)
+      @response = dispatcher.redirect(path)
     end
 
     def render_not_found
-      @response = @dispatcher.render_not_found
+      @response = dispatcher.render_not_found
+    end
+
+    def default_content_type
+      if json_requested?
+        'application/json'
+      else
+        'text/html'
+      end
     end
 
     def present
@@ -103,11 +154,9 @@ module Rory
         @response
       else
         # even if there wasn't a full response generated, we might already have
-        # a @body, if render was explicitly called to render an alternate
-        # template, or if @body was explicitly assigned for some other reason.
+        # a @body, if @body was explicitly assigned for some reason.
         # don't render the default template, in that case.
-        @body ||= render(route_template)
-        [200, {'Content-type' => 'text/html', 'charset' => 'UTF-8'}, [@body]]
+        render(:body => @body)
       end
     end
 

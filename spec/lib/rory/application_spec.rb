@@ -74,6 +74,7 @@ describe Rory::Application do
         Rory::Route.new('rabbits/:chew', :to => 'rabbits#chew', :methods => [:get], :module => 'goose/wombat'),
         Rory::Route.new('', :to => 'root#vegetable', :methods => [:get]),
         Rory::Route.new('', :to => 'root#no_vegetable', :methods => [:delete]),
+        Rory::Route.new('for_reals/switching', :to => 'for_reals#switching', :methods => [:get]),
         Rory::Route.new('for_reals/:parbles', :to => 'for_reals#srsly', :methods => [:get])
       ]
     end

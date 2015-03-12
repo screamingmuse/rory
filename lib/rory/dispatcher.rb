@@ -27,6 +27,10 @@ module Rory
       File.extname(full_path)[1..-1]
     end
 
+    def json_requested?
+      extension == 'json'
+    end
+
     def full_path
       @request.path_info[1..-1] || ''
     end

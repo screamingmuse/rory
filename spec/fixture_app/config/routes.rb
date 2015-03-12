@@ -11,5 +11,6 @@ Fixture::Application.set_routes do
   end
   match '/', :to => 'root#vegetable', :methods => [:get]
   match '/', :to => 'root#no_vegetable', :methods => [:delete]
+  match 'for_reals/switching', :to => 'for_reals#switching', :methods => [:get]
   match 'for_reals/:parbles', :to => 'for_reals#srsly', :methods => [:get]
 end
