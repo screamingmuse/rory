@@ -15,6 +15,30 @@ module Rory
       }
     end
 
+    def override_method
+      requested_override = request.params['_method']
+      return nil unless requested_override
+      if ['put', 'patch', 'delete'].include?(requested_override.downcase)
+        requested_override.downcase
+      end
+    end
+
+    def extension
+      File.extname(full_path)[1..-1]
+    end
+
+    def full_path
+      @request.path_info[1..-1] || ''
+    end
+
+    def path_without_extension
+      full_path.gsub(/(.*)\.#{extension}$/, '\1')
+    end
+
+    def method
+      override_method || request.request_method.downcase
+    end
+
     def route
       @routing[:route] ||= get_route
     end
@@ -59,11 +83,11 @@ module Rory
 
     def get_route
       mapped_route = all_routes.detect do |route|
-        route.matches_request?(@request)
+        route.matches_request?(path_without_extension, method)
       end
       if mapped_route
         @request.params.delete('_method')
-        @request.params.merge! mapped_route.path_params(@request)
+        @request.params.merge! mapped_route.path_params(path_without_extension)
       end
       mapped_route
     end

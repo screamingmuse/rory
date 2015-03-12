@@ -28,15 +28,15 @@ module Rory
       @options[:methods] || []
     end
 
-    def matches_request?(request)
-      @match = regex.match(request.path_info[1..-1] || '')
+    def matches_request?(path, method)
+      @match = regex.match(path)
       @match &&
         (methods.empty? ||
-          methods.include?(method_from_request(request).to_sym))
+          methods.include?(method.to_sym))
     end
 
-    def path_params(request)
-      @match ||= regex.match(request.path_info[1..-1] || '')
+    def path_params(path)
+      @match ||= regex.match(path)
       symbolized_param_names = @match.names.map { |name| name.to_sym }
       Hash[symbolized_param_names.zip(@match.captures)]
     end
@@ -49,18 +49,6 @@ module Rory
         :module => @module,
         :methods => @methods
       }
-    end
-
-  private
-
-    def method_from_request(request)
-      override_method = request.params['_method']
-      method = if override_method && ['put', 'patch', 'delete'].include?(override_method.downcase)
-        override_method
-      else
-        request.request_method
-      end
-      method.downcase
     end
   end
 end
