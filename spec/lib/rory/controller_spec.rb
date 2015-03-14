@@ -195,6 +195,11 @@ describe Rory::Controller do
       object = double(:to_json => :jsonified)
       expect(subject.generate_json_from_object(object)).to eq(:jsonified)
     end
+
+    it "calls to_hash first if object responds to it" do
+      object = double(:to_hash => { 'april' => 'friday' })
+      expect(subject.generate_json_from_object(object)).to eq({ 'april' => 'friday' }.to_json)
+    end
   end
 
   describe "#generate_body_from_template" do
