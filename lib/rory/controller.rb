@@ -107,11 +107,7 @@ module Rory
     end
 
     def generate_json_from_object(object, opts = {})
-      if object.respond_to?(:to_hash)
-        object.to_hash.to_json
-      else
-        object.to_json
-      end
+      Rory::Support.encode_as_json(object)
     end
 
     def generate_for_render(opts = {})

@@ -64,4 +64,24 @@ describe Rory::Support do
       expect(described_class.tokenize(:yourFaceIsNice)).to eq('your_face_is_nice')
     end
   end
+
+  describe ".encode_as_json" do
+    it "returns given object as json" do
+      object = double(:to_json => :jsonified)
+      expect(described_class.encode_as_json(object)).to eq(:jsonified)
+    end
+
+    it "calls to_hash first if object responds to it" do
+      object = double(:to_hash => { 'april' => 'friday' })
+      expect(described_class.encode_as_json(object)).to eq({ 'april' => 'friday' }.to_json)
+    end
+
+    it "converts each member of an array" do
+      object = [
+        double(:to_hash => :smurf),
+        double(:to_hash => :nerf)
+      ]
+      expect(described_class.encode_as_json(object)).to eq([:smurf, :nerf].to_json)
+    end
+  end
 end

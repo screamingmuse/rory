@@ -29,5 +29,22 @@ module Rory
         require file
       end
     end
+
+    def encode_as_json(object)
+      hashed = if object.is_a?(Array)
+        object.map { |o| try_to_hash(o) }
+      else
+        try_to_hash(object)
+      end
+      hashed.to_json
+    end
+
+    def try_to_hash(object)
+      if object.respond_to?(:to_hash)
+        object.to_hash
+      else
+        object
+      end
+    end
   end
 end

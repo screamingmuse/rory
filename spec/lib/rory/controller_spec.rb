@@ -191,14 +191,9 @@ describe Rory::Controller do
   end
 
   describe "#generate_json_from_object" do
-    it "returns given object as json" do
-      object = double(:to_json => :jsonified)
-      expect(subject.generate_json_from_object(object)).to eq(:jsonified)
-    end
-
-    it "calls to_hash first if object responds to it" do
-      object = double(:to_hash => { 'april' => 'friday' })
-      expect(subject.generate_json_from_object(object)).to eq({ 'april' => 'friday' }.to_json)
+    it "encodes given object as json" do
+      allow(Rory::Support).to receive(:encode_as_json).with(:foo).and_return(:encoded_foo)
+      expect(subject.generate_json_from_object(:foo)).to eq(:encoded_foo)
     end
   end
 
