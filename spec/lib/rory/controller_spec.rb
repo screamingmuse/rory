@@ -236,5 +236,10 @@ describe Rory::Controller do
       allow(subject).to receive(:json_requested?).and_return(true)
       expect(subject.default_content_type).to eq('application/json')
     end
+
+    it "returns 'application/json' if options has :json key" do
+      allow(subject).to receive(:json_requested?).and_return(false)
+      expect(subject.default_content_type(:json => 'woo')).to eq('application/json')
+    end
   end
 end

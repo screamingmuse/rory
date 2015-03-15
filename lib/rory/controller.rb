@@ -91,10 +91,10 @@ module Rory
     end
 
     def set_response_defaults(opts)
-      opts[:content_type] ||= default_content_type
+      opts[:content_type] ||= default_content_type(opts)
       opts[:status] ||= 200
       opts[:headers] = {
-        'Content-type' => default_content_type,
+        'Content-type' => opts[:content_type],
         'charset' => 'UTF-8'
       }.merge(opts[:headers] || {})
     end
@@ -134,8 +134,8 @@ module Rory
       @response = dispatcher.render_not_found
     end
 
-    def default_content_type
-      if json_requested?
+    def default_content_type(opts = {})
+      if json_requested? || opts[:json]
         'application/json'
       else
         'text/html'

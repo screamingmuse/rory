@@ -65,15 +65,15 @@ describe Rory::Support do
     end
   end
 
-  describe ".encode_as_json" do
-    it "returns given object as json" do
-      object = double(:to_json => :jsonified)
-      expect(described_class.encode_as_json(object)).to eq(:jsonified)
+  describe ".try_to_hash" do
+    it "returns given object if it does not respond to #to_hash" do
+      object = double
+      expect(described_class.try_to_hash(object)).to eq(object)
     end
 
     it "calls to_hash first if object responds to it" do
       object = double(:to_hash => { 'april' => 'friday' })
-      expect(described_class.encode_as_json(object)).to eq({ 'april' => 'friday' }.to_json)
+      expect(described_class.try_to_hash(object)).to eq({ 'april' => 'friday' })
     end
 
     it "converts each member of an array" do
@@ -81,7 +81,39 @@ describe Rory::Support do
         double(:to_hash => :smurf),
         double(:to_hash => :nerf)
       ]
-      expect(described_class.encode_as_json(object)).to eq([:smurf, :nerf].to_json)
+      expect(described_class.try_to_hash(object)).to eq([:smurf, :nerf])
+    end
+
+    it "converts deeply" do
+      object = [
+        {
+          :perf => double(:to_hash => :smurf),
+          :kerf => [
+            double(:to_hash => :plurf),
+            'yurf'
+          ],
+          :erf => { :burf => double(:to_hash => :wurf) }
+        },
+        double(:to_hash => :nerf)
+      ]
+      expect(described_class.try_to_hash(object)).to eq(
+        [
+          {
+            :perf => :smurf,
+            :kerf => [ :plurf, 'yurf' ],
+            :erf => { :burf => :wurf }
+          },
+          :nerf
+        ]
+      )
+    end
+  end
+
+  describe ".encode_as_json" do
+    it "calls #try_to_hash on object then jsonifies" do
+      foo_hashed = double(:to_json => :jsonified)
+      allow(described_class).to receive(:try_to_hash).with(:foo).and_return(foo_hashed)
+      expect(described_class.encode_as_json(:foo)).to eq(:jsonified)
     end
   end
 end

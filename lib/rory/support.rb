@@ -31,16 +31,15 @@ module Rory
     end
 
     def encode_as_json(object)
-      hashed = if object.is_a?(Array)
-        object.map { |o| try_to_hash(o) }
-      else
-        try_to_hash(object)
-      end
-      hashed.to_json
+      try_to_hash(object).to_json
     end
 
     def try_to_hash(object)
-      if object.respond_to?(:to_hash)
+      if object.is_a?(Array)
+        object.map { |val| try_to_hash(val) }
+      elsif object.is_a?(Hash)
+        Hash[object.map { |key, val| [key, try_to_hash(val)] }]
+      elsif object.respond_to?(:to_hash)
         object.to_hash
       else
         object
