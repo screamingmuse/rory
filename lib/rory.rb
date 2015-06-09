@@ -2,6 +2,7 @@ ENV['RORY_ENV'] ||= ENV['RACK_ENV'] || 'development'
 
 require 'yaml'
 require 'sequel'
+require 'rack/contrib'
 require 'rory/application'
 require 'rory/dispatcher'
 require 'rory/route'
