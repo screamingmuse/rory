@@ -24,3 +24,6 @@ Gemfile.lock
 
 # coverage
 coverage/*
+
+# ruby mine files
+.idea/
