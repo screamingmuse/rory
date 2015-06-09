@@ -19,12 +19,20 @@ module Rory
     private
 
     def log_request
-      logger.write(request_signature)
-      logger.write("  Parameters: #{filtered_params}\n")
+      log_message(request_signature)
+      log_message("Parameters: #{filtered_params}")
     end
 
     def logger
       @logger || @env['rack.errors']
+    end
+
+    def log_message(message)
+      if logger.respond_to?(:write)
+        logger.write(message + "\n")
+      else
+        logger.info(message)
+      end
     end
 
     def parameter_filter
@@ -44,7 +52,7 @@ module Rory
     end
 
     def request_signature
-      %{Started #{@env['REQUEST_METHOD']} "#{@env['PATH_INFO']}" for #{@env['REMOTE_ADDR']} at #{Time.now}\n}
+      %{Started #{@env['REQUEST_METHOD']} "#{@env['PATH_INFO']}" for #{@env['REMOTE_ADDR']} at #{Time.now}}
     end
   end
 end

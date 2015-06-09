@@ -17,11 +17,24 @@ describe Rory::RequestParameterLogger do
   end
 
   describe '#log_request' do
-    it 'writes the request to the logger' do
-      allow(subject).to receive(:request_signature).and_return('request_signature')
-      allow(subject).to receive(:filtered_params).and_return('filtered_params')
-      expect(logger).to receive(:write).exactly(2).times
-      subject.send(:log_request)
+
+    context 'when logger responds to write' do
+      it 'writes the request to the logger' do
+        allow(subject).to receive(:request_signature).and_return('request_signature')
+        allow(subject).to receive(:filtered_params).and_return('filtered_params')
+        expect(logger).to receive(:write).exactly(2).times
+        subject.send(:log_request)
+      end
+    end
+
+    context 'when logger does not respond to write' do
+      let(:logger) { double(:info) }
+      it 'writes the request to the logger' do
+        allow(subject).to receive(:request_signature).and_return('request_signature')
+        allow(subject).to receive(:filtered_params).and_return('filtered_params')
+        expect(logger).to receive(:info).exactly(2).times
+        subject.send(:log_request)
+      end
     end
   end
 
@@ -62,7 +75,7 @@ describe Rory::RequestParameterLogger do
 
       allow(Time).to receive(:now).and_return("2015-06-08 15:16:42 -0700")
       subject.instance_variable_set(:@env, env)
-      expect(subject.send(:request_signature)).to eq('Started POST "/mushy_mushy" for 127.0.0.1 at 2015-06-08 15:16:42 -0700' + "\n")
+      expect(subject.send(:request_signature)).to eq('Started POST "/mushy_mushy" for 127.0.0.1 at 2015-06-08 15:16:42 -0700')
     end
   end
 
