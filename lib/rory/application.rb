@@ -1,6 +1,9 @@
 require 'pathname'
 require 'logger'
 require 'rory/route_mapper'
+require 'rack/commonlogger'
+require_relative '../rory/request_parameter_logger'
+
 
 module Rory
   # Main application superclass.  Applications should subclass this class,
@@ -17,9 +20,9 @@ module Rory
       private :new
       attr_reader :root
 
-      def inherited(base)
+      def inherited(subclass)
         super
-        Rory.application = base.instance
+        Rory.application = subclass.instance
       end
 
       def method_missing(*args, &block)
@@ -59,9 +62,11 @@ module Rory
     end
 
     def config_path
-      @config_path ||= begin
-        root_path.join('config')
-      end
+      @config_path ||= root_path.join('config')
+    end
+
+    def log_path
+      @log_path ||= root_path.join('log')
     end
 
     def set_routes(&block)
@@ -96,6 +101,7 @@ module Rory
     end
 
     def use_middleware(*args, &block)
+      @stack = nil
       middleware << [args, block]
     end
 
@@ -107,25 +113,44 @@ module Rory
       Rory::Dispatcher.rack_app(self)
     end
 
-    def stack
-      builder = Rack::Builder.new
-      middleware.each do |args, block|
-        builder.use *args, &block
+    def request_logging_on?
+      @request_logging != false
+    end
+
+    def turn_off_request_logging!
+      @stack = nil
+      @request_logging = false
+    end
+
+    def use_default_middleware
+      if request_logging_on?
+        use_middleware Rack::PostBodyContentTypeParser
+        use_middleware Rack::CommonLogger, logger
+        use_middleware Rory::RequestParameterLogger, logger
       end
-      builder.run dispatcher
-      builder
+    end
+
+    def stack
+      @stack ||= Rack::Builder.new.tap { |builder|
+        use_default_middleware
+        middleware.each do |args, block|
+          builder.use *args, &block
+        end
+        builder.run dispatcher
+      }
     end
 
     def call(env)
       stack.call(env)
     end
 
+    def log_file
+      Dir.mkdir(log_path) unless File.exists?(log_path)
+      File.open(log_path.join("#{ENV['RORY_ENV']}.log"), 'a').tap {|file| file.sync = true}
+    end
+
     def logger
-      @logger ||= begin
-        Dir.mkdir('log') unless File.exists?('log')
-        file = File.open(File.join('log', "#{ENV['RORY_ENV']}.log"), 'a')
-        Logger.new(file)
-      end
+      @logger ||= Logger.new(log_file)
     end
   end
 end
