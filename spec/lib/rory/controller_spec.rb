@@ -68,6 +68,22 @@ describe Rory::Controller do
         subject.present
       end
 
+      context "on sub-subclass" do
+        let(:grandchild) { Class.new(FilteredController) }
+        let(:greatgrandchild) { Class.new(grandchild) }
+        subject { greatgrandchild.new(@request, @routing) }
+
+        it "assembles list of all filter actions from ancestry" do
+          grandchild.before_action :do_a_jig
+          greatgrandchild.before_action :take_a_deep_breath
+
+          [:pickle_something, :make_it_tasty, :do_a_jig, :take_a_deep_breath, :letsgo, :rub_tummy, :sleep, :render].each do |m|
+            expect(subject).to receive(m).ordered
+          end
+          subject.present
+        end
+      end
+
       it "short circuits if a before_action generates a response" do
         def subject.pickle_something
           @response = 'stuff'

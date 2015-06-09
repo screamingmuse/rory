@@ -30,10 +30,12 @@ module Rory
       end
 
       def ancestor_actions(action_type)
-        (ancestors - [self]).reverse.map { |c|
-          query_method = :"#{action_type}_actions"
-          c.send(query_method) if c.respond_to?(query_method)
-        }.flatten.compact
+        query_method = :"#{action_type}_actions"
+        if superclass && superclass.respond_to?(query_method)
+          superclass.send(query_method).flatten.compact
+        else
+          []
+        end
       end
     end
 
