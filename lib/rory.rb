@@ -1,9 +1,5 @@
 ENV['RORY_ENV'] ||= ENV['RACK_ENV'] || 'development'
 
-if ENV['RORY_STAGE']
-  raise "Use of 'RORY_STAGE' no longer supported. Use 'RORY_ENV' instead."
-end
-
 require 'yaml'
 require 'sequel'
 require 'rory/application'
