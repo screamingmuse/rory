@@ -20,5 +20,5 @@ Fixture::Application.require_all_files
 Capybara.app = Fixture::Application
 
 RSpec.configure do |config|
-
+  config.order = "random"
 end
