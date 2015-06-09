@@ -28,16 +28,18 @@ EOF
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
 
-  s.add_runtime_dependency 'rack', '>= 1.0'
+  s.add_runtime_dependency 'rack', '~> 1.0'
+  s.add_runtime_dependency 'rack-contrib', '~> 1.2'
   s.add_runtime_dependency 'sequel', '~> 4.0'
   s.add_runtime_dependency 'thin', '~> 1.0'
 
-  s.add_development_dependency 'rake'
+  s.add_development_dependency 'rake', '~> 10.4'
   s.add_development_dependency 'rspec', '~> 3'
-  s.add_development_dependency 'capybara'
-  s.add_development_dependency 'yard'
-  s.add_development_dependency 'reek'
-  s.add_development_dependency 'simplecov'
+  s.add_development_dependency 'capybara', '~> 2.4'
+  s.add_development_dependency 'yard', '~> 0.8'
+  s.add_development_dependency 'reek', '~> 2.2'
+  s.add_development_dependency 'simplecov', '~> 0.10'
   s.add_development_dependency 'bundler', '~> 1.0'
+  s.add_development_dependency 'pry', '~> 0.10'
 end
 
