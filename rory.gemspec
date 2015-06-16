@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.name = "rory"
   s.version = Rory::VERSION
   s.platform = Gem::Platform::RUBY
-  s.authors = ["Ravi Gadad"]
+  s.authors = ["Ravi Gadad", "Michael Irey"]
   s.email = ["ravi@screamingmuse.com"]
   s.homepage = "http://github.com/screamingmuse/rory"
   s.summary = "Another Ruby web framework. Just what the world needs."
