@@ -146,7 +146,7 @@ module Rory
 
     def log_file
       Dir.mkdir(log_path) unless File.exists?(log_path)
-      File.open(log_path.join("#{ENV['RORY_ENV']}.log"), 'a').tap {|file| file.sync = true}
+      File.open(log_path.join("#{ENV['RORY_ENV']}.log"), 'a').tap { |file| file.sync = true }
     end
 
     def logger
