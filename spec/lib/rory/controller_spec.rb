@@ -215,7 +215,7 @@ describe Rory::Controller do
 
   describe "#generate_body_from_template" do
     it "returns rendered template with given name" do
-      expect(subject.generate_body_from_template('test/letsgo')).to eq("Let's go content")
+      expect(subject.generate_body_from_template('test/letsgo', :app => Fixture::Application)).to eq("Let's go content")
     end
 
     it "returns renderer output" do
