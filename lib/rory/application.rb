@@ -2,7 +2,7 @@ require 'pathname'
 require 'logger'
 require 'rory/route_mapper'
 require 'rack/commonlogger'
-require_relative '../rory/request_parameter_logger'
+require_relative 'request_parameter_logger'
 
 
 module Rory

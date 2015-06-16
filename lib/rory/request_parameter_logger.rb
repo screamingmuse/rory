@@ -1,4 +1,4 @@
-require_relative '../rory/parameter_filter'
+require_relative 'parameter_filter'
 
 module Rory
   class RequestParameterLogger
