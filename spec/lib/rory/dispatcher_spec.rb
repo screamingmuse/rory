@@ -55,6 +55,15 @@ describe Rory::Dispatcher do
     end
   end
 
+  describe ".rack_app" do
+    it "returns a callable object that dispatches to a new dispatcher" do
+      allow(Rack::Request).to receive(:new).with(:env).and_return(:a_request)
+      allow(described_class).to receive(:new).with(:a_request, :the_app).and_return(subject)
+      allow(subject).to receive(:dispatch).and_return(:the_dispatch)
+      expect(described_class.rack_app(:the_app).call(:env)).to eq(:the_dispatch)
+    end
+  end
+
   describe "#dispatch" do
     let(:request) { { :whatever => :yay } }
     before(:each) do

@@ -61,14 +61,20 @@ describe Rory::Application do
     end
   end
 
+  describe ".dispatcher" do
+    it "returns new dispatcher rack app" do
+      allow(Rory::Dispatcher).to receive(:rack_app).
+        with(subject).and_return(:dispatcher_app)
+      expect(subject.dispatcher).to eq(:dispatcher_app)
+    end
+  end
+
   describe ".call" do
-    it "forwards arg to new dispatcher, and calls dispatch" do
-      dispatcher = double(:dispatch => :expected)
-      rack_request = double(:media_type => 'application/json')
-      env = { "rack.input" => double(:read => {}) }
-      allow(Rack::Request).to receive(:new).with(env).and_return(rack_request)
-      expect(Rory::Dispatcher).to receive(:new).with(rack_request, subject.instance).and_return(dispatcher)
-      expect(subject.call(env)).to eq(:expected)
+    it "calls the stack with the given environment" do
+      stack = double
+      allow(stack).to receive(:call).with(:the_env).and_return(:expected)
+      expect(subject.instance).to receive(:stack).and_return(stack)
+      expect(subject.call(:the_env)).to eq(:expected)
     end
   end
 
@@ -90,7 +96,7 @@ describe Rory::Application do
   end
 
   describe ".logger" do
-    it "reutrns a logger" do
+    it "returns a logger" do
       logger = double
       allow_any_instance_of(subject).to receive(:log_file)
       allow(Logger).to receive(:new).and_return(logger)
@@ -98,19 +104,68 @@ describe Rory::Application do
     end
   end
 
+  describe ".turn_off_request_logging!" do
+    it "resets stack and turns off request logging" do
+      subject.instance.instance_variable_set(:@request_logging, :true)
+      expect(subject.request_logging_on?).to eq(true)
+      expect(subject.instance).to receive(:reset_stack)
+      subject.turn_off_request_logging!
+      expect(subject.request_logging_on?).to eq(false)
+    end
+  end
+
+  describe ".filter_parameters" do
+    it "resets stack and sets parameters to filter" do
+      expect(subject.instance).to receive(:reset_stack)
+      subject.filter_parameters :dog, :kitty
+      expect(subject.parameters_to_filter).to eq([:dog, :kitty])
+    end
+  end
+
+  describe ".reset_stack" do
+    it "clears memoization of stack" do
+      stack = subject.stack
+      expect(subject.stack).to eq(stack)
+      subject.reset_stack
+      expect(subject.stack).not_to eq(stack)
+    end
+  end
+
+  describe ".stack" do
+    it "returns a rack builder instance with configured middleware" do
+      builder = double
+      allow(subject.instance).to receive(:dispatcher).
+        and_return(:the_dispatcher)
+      allow(Rack::Builder).to receive(:new).and_return(builder)
+      subject.use_middleware :horse
+      expect(subject.instance).to receive(:use_default_middleware)
+      expect(builder).to receive(:use).with(:horse)
+      expect(builder).to receive(:run).with(:the_dispatcher)
+      expect(subject.stack).to eq(builder)
+    end
+  end
+
+  describe ".parameters_to_filter" do
+    it "returns [:password] by default" do
+      expect(subject.parameters_to_filter).to eq([:password])
+    end
+  end
+
   describe ".use_default_middleware" do
     it "adds middleware when request logging is on" do
       allow(subject.instance).to receive(:request_logging_on?).and_return(true)
+      allow(subject.instance).to receive(:parameters_to_filter).and_return([:horses])
       allow(subject.instance).to receive(:logger).and_return(:the_logger)
+      expect(subject.instance).to receive(:use_middleware).with(Rack::PostBodyContentTypeParser)
+      expect(subject.instance).to receive(:use_middleware).with(Rack::CommonLogger, :the_logger)
+      expect(subject.instance).to receive(:use_middleware).with(Rory::RequestParameterLogger, :the_logger, filters: [:horses])
       subject.use_default_middleware
-      expect(subject.middleware.count).to_not eq(0)
     end
 
     it "does not add middleware when request logging is off" do
       allow(subject.instance).to receive(:request_logging_on?).and_return(false)
-      allow(subject.instance).to receive(:logger).and_return(:the_logger)
+      expect(subject.instance).to receive(:use_middleware).never
       subject.use_default_middleware
-      expect(subject.middleware.count).to eq(0)
     end
   end
 
@@ -199,6 +254,12 @@ describe Rory::Application do
           Rory::Route.new('for_reals/switching', :to => 'for_reals#switching', :methods => [:get]),
           Rory::Route.new('for_reals/:parbles', :to => 'for_reals#srsly', :methods => [:get])
         ]
+      end
+    end
+
+    describe ".parameters_to_filter" do
+      it "returns overridden parameters" do
+        expect(subject.parameters_to_filter).to eq([:orcas, :noodles])
       end
     end
   end

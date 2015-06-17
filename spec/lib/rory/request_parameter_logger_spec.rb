@@ -2,7 +2,7 @@ describe Rory::RequestParameterLogger do
 
   let(:logger) { double(:write) }
   let(:app) { double(:call) }
-  subject { described_class.new(app, logger, :filters) }
+  subject { described_class.new(app, logger, filters: :filters) }
 
   describe '#initialize' do
     it 'returns a new RequestParameterLogger' do
