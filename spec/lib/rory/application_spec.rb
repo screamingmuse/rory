@@ -158,7 +158,7 @@ describe Rory::Application do
       allow(subject.instance).to receive(:logger).and_return(:the_logger)
       expect(subject.instance).to receive(:use_middleware).with(Rack::PostBodyContentTypeParser)
       expect(subject.instance).to receive(:use_middleware).with(Rack::CommonLogger, :the_logger)
-      expect(subject.instance).to receive(:use_middleware).with(Rory::RequestParameterLogger, :the_logger, filters: [:horses])
+      expect(subject.instance).to receive(:use_middleware).with(Rory::RequestParameterLogger, :the_logger, :filters => [:horses])
       subject.use_default_middleware
     end
 

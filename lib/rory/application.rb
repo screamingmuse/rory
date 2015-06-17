@@ -139,7 +139,7 @@ module Rory
       if request_logging_on?
         use_middleware Rack::PostBodyContentTypeParser
         use_middleware Rack::CommonLogger, logger
-        use_middleware Rory::RequestParameterLogger, logger, filters: parameters_to_filter
+        use_middleware Rory::RequestParameterLogger, logger, :filters => parameters_to_filter
       end
     end
 
