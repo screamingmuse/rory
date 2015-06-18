@@ -3,10 +3,10 @@ require_relative 'parameter_filter'
 module Rory
   class RequestParameterLogger
 
-    def initialize(app, logger=nil, filters=[:password])
+    def initialize(app, logger = nil, options = {})
       @app = app
       @logger = logger
-      @filters = filters
+      @filters = options.fetch(:filters, [])
     end
 
     def call(env)

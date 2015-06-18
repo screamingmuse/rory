@@ -118,15 +118,28 @@ module Rory
     end
 
     def turn_off_request_logging!
-      @stack = nil
+      reset_stack
       @request_logging = false
+    end
+
+    def parameters_to_filter
+      @parameters_to_filter || [:password]
+    end
+
+    def filter_parameters(*params)
+      reset_stack
+      @parameters_to_filter = params
+    end
+
+    def reset_stack
+      @stack = nil
     end
 
     def use_default_middleware
       if request_logging_on?
         use_middleware Rack::PostBodyContentTypeParser
         use_middleware Rack::CommonLogger, logger
-        use_middleware Rory::RequestParameterLogger, logger
+        use_middleware Rory::RequestParameterLogger, logger, :filters => parameters_to_filter
       end
     end
 

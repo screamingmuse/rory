@@ -2,7 +2,7 @@ describe Rory::RequestParameterLogger do
 
   let(:logger) { double(:write) }
   let(:app) { double(:call) }
-  subject { described_class.new(app, logger, :filters) }
+  subject { described_class.new(app, logger, :filters => :filters) }
 
   describe '#initialize' do
     it 'returns a new RequestParameterLogger' do
@@ -13,6 +13,11 @@ describe Rory::RequestParameterLogger do
       expect(subject.instance_variable_get(:@app)).to eq(app)
       expect(subject.instance_variable_get(:@logger)).to eq(logger)
       expect(subject.instance_variable_get(:@filters)).to eq(:filters)
+    end
+
+    it 'defaults filters to empty array' do
+      no_filter_logger = described_class.new(app, logger)
+      expect(no_filter_logger.instance_variable_get(:@filters)).to eq([])
     end
   end
 
