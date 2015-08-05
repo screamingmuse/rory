@@ -1,3 +1,4 @@
+[![Gem Version](https://badge.fury.io/rb/rory.svg)](http://badge.fury.io/rb/rory)
 rory
 ====
 
