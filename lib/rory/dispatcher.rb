@@ -11,7 +11,7 @@ module Rory
 
     def self.rack_app(app)
       Proc.new { |env|
-        new(Rack::Request.new(env), app).dispatch
+        new(Rory::Request.new(env), app).dispatch
       }
     end
 
