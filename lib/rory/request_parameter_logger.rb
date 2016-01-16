@@ -1,5 +1,4 @@
 require_relative 'parameter_filter'
-
 module Rory
   class RequestParameterLogger
 
@@ -29,7 +28,7 @@ module Rory
 
     def log_message(message)
       if logger.respond_to?(:write)
-        logger.write(message + "\n")
+        logger.write(message)
       else
         logger.info(message)
       end
