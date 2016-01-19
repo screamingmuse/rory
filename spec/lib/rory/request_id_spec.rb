@@ -1,5 +1,4 @@
 RSpec.describe Rory::RequestId do
-
   subject { described_class.new(Proc.new {|env|[200, headers, ""] },
                                 uuid_prefix:  uuid_prefix,
                                 uuid_creator: class_double(SecureRandom, uuid: "1234")) }
@@ -42,6 +41,15 @@ RSpec.describe Rory::RequestId do
 
     it "sets Thread.current[:rory_request_id]" do
       expect(Thread.current[:rory_request_id]).to eq "4321"
+    end
+  end
+
+  context "use default SecureRandom" do
+    subject { described_class.new(Proc.new {|env|[200, headers, ""] },
+                                  uuid_prefix:  uuid_prefix).call({}) }
+    it "call uuid on SecureRandom" do
+      expect(SecureRandom).to receive(:uuid).once
+      subject
     end
   end
 end

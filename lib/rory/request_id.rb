@@ -11,7 +11,7 @@ module Rory
   class RequestId
     def initialize(app, options={})
       @app          = app
-      @uuid_creator = options[:uuid_creator]
+      @uuid_creator = options.fetch(:uuid_creator, SecureRandom)
       @uuid_prefix  = options[:uuid_prefix]
     end
 
