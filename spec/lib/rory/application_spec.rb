@@ -1,9 +1,14 @@
 describe Rory::Application do
   let(:subject) {
-    Class.new(Rory::Application).tap { |app|
+    Object.const_set(test_rory_app_name, Class.new(Rory::Application).tap { |app|
       app.root = root
       app.turn_off_request_logging!
-    }
+    })
+    Object.const_get(test_rory_app_name)
+  }
+
+  let(:test_rory_app_name){
+    "TestRory#{('a'..'z').to_a.sample(5).join}"
   }
   let(:root){"spec/fixture_app"}
 
@@ -178,7 +183,7 @@ describe Rory::Application do
       allow(subject.instance).to receive(:request_logging_on?).and_return(true)
       allow(subject.instance).to receive(:parameters_to_filter).and_return([:horses])
       allow(subject.instance).to receive(:logger).and_return(:the_logger)
-      expect(subject.instance).to receive(:use_middleware).with(Rory::RequestId)
+      expect(subject.instance).to receive(:use_middleware).with(Rory::RequestId, :uuid_prefix => test_rory_app_name)
       expect(subject.instance).to receive(:use_middleware).with(Rack::PostBodyContentTypeParser)
       expect(subject.instance).to receive(:use_middleware).with(Rack::CommonLogger, :the_logger)
       expect(subject.instance).to receive(:use_middleware).with(Rory::RequestParameterLogger, :the_logger, :filters => [:horses])

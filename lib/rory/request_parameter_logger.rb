@@ -28,7 +28,7 @@ module Rory
 
     def log_message(message)
       if logger.respond_to?(:write)
-        logger.write(message)
+        logger.write(message + "\n")
       else
         logger.info(message)
       end

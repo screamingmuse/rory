@@ -17,7 +17,7 @@ module Rory
 
     def call(env)
       env["rory.request_id"] = external_request_id(env) || internal_request_id
-      Thread.current[:rory_request_id] = env["rory.request_id"]
+      Thread.current.inheritable_attributes[:rory_request_id] = env["rory.request_id"]
       @app.call(env).tap { |_status, headers, _body| headers["X-Request-Id"] = env["rory.request_id"] }
     end
 
@@ -34,7 +34,7 @@ module Rory
     end
 
     def uuid_prefix
-      @uuid_prefix ? "#{@uuid_prefix}-" : ""
+      @uuid_prefix ? "#{Support.tokenize(@uuid_prefix)}-" : ""
     end
   end
 end

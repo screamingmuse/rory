@@ -18,12 +18,12 @@ RSpec.describe Rory::RequestId do
     end
 
     it "sets Thread.current[:rory_request_id]" do
-      expect(Thread.current[:rory_request_id]).to eq "1234"
+      expect(Thread.current.inheritable_attributes[:rory_request_id]).to eq "1234"
     end
 
     context "the uuid can be given a prefixed to know where it was created" do
-      let(:uuid_prefix) { "app_name" }
-      it { expect(Thread.current[:rory_request_id]).to eq "app_name-1234" }
+      let(:uuid_prefix) { "AppName" }
+      it { expect(Thread.current.inheritable_attributes[:rory_request_id]).to eq "app_name-1234" }
     end
   end
 
@@ -40,7 +40,7 @@ RSpec.describe Rory::RequestId do
     end
 
     it "sets Thread.current[:rory_request_id]" do
-      expect(Thread.current[:rory_request_id]).to eq "4321"
+      expect(Thread.current.inheritable_attributes[:rory_request_id]).to eq "4321"
     end
   end
 

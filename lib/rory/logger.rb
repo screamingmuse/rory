@@ -3,28 +3,41 @@ require "logger"
 
 module Rory
   class Logger < ::Logger
-    def initialize(io)
+    def initialize(io, options={})
       super(io)
       @default_formatter = Formatter.new
+      @tagged            = options.fetch(:tagged, [:request_id])
     end
 
-    alias_method :write, :info
-
-    private
-
-    def format_message(severity, datetime, progname, msg)
-      (@formatter || @default_formatter).call(severity, datetime, progname, msg, request_id)
+    def <<(msg)
+      super([tagged, msg].reject(&:empty?).join(" "))
     end
 
     def request_id
-      Thread.current[:rory_request_id]
+      Thread.current.inheritable_attributes[:rory_request_id]
+    end
+
+    def tagged
+      @tagged.map do |key|
+        "#{key}=#{quoted_string(public_send(key))}"
+      end.join(" ").rstrip
+    end
+
+    private
+
+    def quoted_string(str)
+      str =~ /\s/ ? %["#{str}"] : str
+    end
+
+    def format_message(severity, datetime, progname, msg)
+      (@formatter || @default_formatter).call(severity, datetime, progname, msg, tagged)
     end
 
     class Formatter < ::Logger::Formatter
       FORMAT = "%s, [%s - %s#%d] %5s -- %s: %s\n"
 
-      def call(severity, time, progname, msg, request_id)
-        FORMAT % [severity[0..0], request_id, format_datetime(time), $$, severity, progname, msg2str(msg)]
+      def call(severity, time, progname, msg, tagged)
+        FORMAT % [severity[0..0], tagged, format_datetime(time), $$, severity, progname, msg2str(msg)]
       end
     end
   end
