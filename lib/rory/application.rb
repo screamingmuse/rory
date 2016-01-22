@@ -39,7 +39,7 @@ module Rory
       end
 
       def root=(root_path)
-        @root = Pathname.new(root_path).expand_path
+        $:.unshift @root = Pathname.new(root_path).realpath
       end
     end
 

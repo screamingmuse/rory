@@ -1,10 +1,32 @@
 describe Rory::Application do
   let(:subject) {
     Class.new(Rory::Application).tap { |app|
-      app.root = "whatever"
+      app.root = root
       app.turn_off_request_logging!
     }
   }
+  let(:root){"spec/fixture_app"}
+
+  describe ".root=" do
+    let(:root) { "current_app" }
+    before { `ln -s spec/fixture_app current_app` }
+    after { `rm current_app` }
+
+    it 'appends to the load path' do
+      expect($:).to receive(:unshift).with(Pathname("current_app").realpath)
+      subject
+    end
+  end
+
+  describe ".root" do
+    let(:root) { "current_app" }
+    before { `ln -s spec/fixture_app current_app` }
+    after { `rm current_app` }
+
+    it "returns the realpath" do
+      expect(subject.root.to_s).to match(/spec\/fixture_app/)
+    end
+  end
 
   describe ".configure" do
     it 'yields the given block to self' do
