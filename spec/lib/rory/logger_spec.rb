@@ -1,4 +1,5 @@
 require "logger"
+require "rory/thread"
 require "rory/logger"
 
 describe Rory::Logger do
@@ -14,7 +15,7 @@ describe Rory::Logger do
 
   let(:rory_request_id) { "1111-2222" }
 
-  before { Thread.current.inheritable_attributes[:rory_request_id] = rory_request_id }
+  before { Thread.current.inheritable_attributes = Thread.current.inheritable_attributes.merge(:rory_request_id => rory_request_id) }
 
   context "when tagged is empty" do
     subject { described_class.new(string_io, tagged: []) }
