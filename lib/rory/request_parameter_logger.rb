@@ -1,5 +1,4 @@
 require_relative 'parameter_filter'
-
 module Rory
   class RequestParameterLogger
 

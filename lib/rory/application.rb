@@ -1,5 +1,6 @@
 require 'pathname'
-require 'logger'
+require 'rory/logger'
+require 'rory/request_id'
 require 'rory/route_mapper'
 require 'rack/commonlogger'
 require_relative 'request_parameter_logger'
@@ -137,6 +138,7 @@ module Rory
 
     def use_default_middleware
       if request_logging_on?
+        use_middleware Rory::RequestId, :uuid_prefix => self.class.name
         use_middleware Rack::PostBodyContentTypeParser
         use_middleware Rack::CommonLogger, logger
         use_middleware Rory::RequestParameterLogger, logger, :filters => parameters_to_filter

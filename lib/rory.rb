@@ -2,6 +2,7 @@ ENV['RORY_ENV'] ||= ENV['RACK_ENV'] || 'development'
 
 require 'yaml'
 require 'sequel'
+require 'thread/inheritable_attributes'
 require 'rack/contrib'
 require 'rory/application'
 require 'rory/dispatcher'
