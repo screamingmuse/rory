@@ -42,6 +42,15 @@ module Rory
       def root=(root_path)
         $:.unshift @root = Pathname.new(root_path).realpath
       end
+
+      # active_support/core_ext/module/introspection.rb
+      def parent_name
+        if defined? @parent_name
+          @parent_name
+        else
+          @parent_name = name =~ /::[^:]+\Z/ ? $`.freeze : nil
+        end
+      end
     end
 
     def auto_require_paths
@@ -136,9 +145,13 @@ module Rory
       @stack = nil
     end
 
+    def app_name
+      self.class.parent_name
+    end
+
     def use_default_middleware
       if request_logging_on?
-        use_middleware Rory::RequestId, :uuid_prefix => self.class.name
+        use_middleware Rory::RequestId, :uuid_prefix => app_name
         use_middleware Rack::PostBodyContentTypeParser
         use_middleware Rack::CommonLogger, logger
         use_middleware Rory::RequestParameterLogger, logger, :filters => parameters_to_filter
