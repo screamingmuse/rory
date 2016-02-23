@@ -23,7 +23,7 @@ RSpec.describe Rory::RequestId do
     end
 
     context "the uuid can be given a prefixed to know where it was created" do
-      let(:uuid_prefix) { "AppName" }
+      let(:uuid_prefix) { "app_name" }
       it { expect(Thread.current.get_inheritable_attribute(:rory_request_id)).to eq "app_name-1234" }
     end
   end
