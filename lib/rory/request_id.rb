@@ -34,7 +34,7 @@ module Rory
     end
 
     def uuid_prefix
-      @uuid_prefix ? "#{Support.tokenize(@uuid_prefix)}-" : ""
+      @uuid_prefix ? "#{@uuid_prefix}-" : ""
     end
   end
 end

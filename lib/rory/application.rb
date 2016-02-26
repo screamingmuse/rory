@@ -136,9 +136,13 @@ module Rory
       @stack = nil
     end
 
+    def uuid_prefix
+      Support.tokenize(self.class.name.gsub("::Application", ""))
+    end
+
     def use_default_middleware
       if request_logging_on?
-        use_middleware Rory::RequestId, :uuid_prefix => self.class.name
+        use_middleware Rory::RequestId, :uuid_prefix => uuid_prefix
         use_middleware Rack::PostBodyContentTypeParser
         use_middleware Rack::CommonLogger, logger
         use_middleware Rory::RequestParameterLogger, logger, :filters => parameters_to_filter
