@@ -2,9 +2,10 @@ require 'pathname'
 require 'rory/logger'
 require 'rory/request_id'
 require 'rory/route_mapper'
+require 'rory/middleware_stack'
+require 'rory/initializers'
 require 'rack/commonlogger'
-require_relative 'request_parameter_logger'
-
+require 'rory/request_parameter_logger'
 
 module Rory
   # Main application superclass.  Applications should subclass this class,
@@ -30,7 +31,12 @@ module Rory
         instance.send(*args, &block)
       end
 
-      def respond_to?(method)
+      # @return [Rory::Initializers]
+      def initializers
+        @initializers ||= Initializers.new
+      end
+
+      def respond_to?(method, private=false)
         return true if instance.respond_to?(method)
         super
       end
@@ -42,7 +48,15 @@ module Rory
       def root=(root_path)
         $:.unshift @root = Pathname.new(root_path).realpath
       end
+
+      def initializer_default_middleware
+        Rory::Application.initializers.add "rory.request_middleware" do |app|
+          app.request_middleware
+        end
+      end
     end
+
+    initializer_default_middleware
 
     def auto_require_paths
       @auto_require_paths ||= %w(models controllers helpers)
@@ -102,12 +116,11 @@ module Rory
     end
 
     def use_middleware(*args, &block)
-      @stack = nil
-      middleware << [args, block]
+      middleware.use *args, &block
     end
 
     def middleware
-      @middleware ||= []
+      @middleware ||= MiddlewareStack.new
     end
 
     def dispatcher
@@ -140,20 +153,23 @@ module Rory
       Support.tokenize(self.class.name.gsub("::Application", ""))
     end
 
-    def use_default_middleware
-      if request_logging_on?
-        use_middleware Rory::RequestId, :uuid_prefix => uuid_prefix
-        use_middleware Rack::PostBodyContentTypeParser
-        use_middleware Rack::CommonLogger, logger
-        use_middleware Rory::RequestParameterLogger, logger, :filters => parameters_to_filter
-      end
+    def request_middleware
+      return unless request_logging_on?
+      use_middleware Rory::RequestId, :uuid_prefix => uuid_prefix
+      use_middleware Rack::PostBodyContentTypeParser
+      use_middleware Rack::CommonLogger, logger
+      use_middleware Rory::RequestParameterLogger, logger, :filters => parameters_to_filter
+    end
+
+    def run_initializers
+      Rory::Application.initializers.run(self)
     end
 
     def stack
       @stack ||= Rack::Builder.new.tap { |builder|
-        use_default_middleware
-        middleware.each do |args, block|
-          builder.use *args, &block
+        run_initializers
+        middleware.each do |m|
+          builder.use m.klass, *m.args, &m.block
         end
         builder.run dispatcher
       }

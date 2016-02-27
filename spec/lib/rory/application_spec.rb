@@ -1,4 +1,6 @@
-describe Rory::Application do
+require_relative '../../fixture_app/lib/dummy_middleware'
+
+RSpec.describe Rory::Application do
   let(:subject) {
     Object.const_set(test_rory_app_name, Class.new(Rory::Application).tap { |app|
       app.root = root
@@ -11,6 +13,11 @@ describe Rory::Application do
     "TestRory#{('a'..'z').to_a.sample(5).join}"
   }
   let(:root){"spec/fixture_app"}
+
+  before do
+    Rory::Application.initializers.clear
+    Rory::Application.initializer_default_middleware
+  end
 
   describe ".root=" do
     let(:root) { "current_app" }
@@ -165,7 +172,7 @@ describe Rory::Application do
         and_return(:the_dispatcher)
       allow(Rack::Builder).to receive(:new).and_return(builder)
       subject.use_middleware :horse
-      expect(subject.instance).to receive(:use_default_middleware)
+      expect(subject.instance).to receive(:request_middleware).with(no_args)
       expect(builder).to receive(:use).with(:horse)
       expect(builder).to receive(:run).with(:the_dispatcher)
       expect(subject.stack).to eq(builder)
@@ -187,13 +194,13 @@ describe Rory::Application do
       expect(subject.instance).to receive(:use_middleware).with(Rack::PostBodyContentTypeParser)
       expect(subject.instance).to receive(:use_middleware).with(Rack::CommonLogger, :the_logger)
       expect(subject.instance).to receive(:use_middleware).with(Rory::RequestParameterLogger, :the_logger, :filters => [:horses])
-      subject.use_default_middleware
+      subject.request_middleware
     end
 
     it "does not add middleware when request logging is off" do
       allow(subject.instance).to receive(:request_logging_on?).and_return(false)
       expect(subject.instance).to receive(:use_middleware).never
-      subject.use_default_middleware
+      subject.request_middleware
     end
   end
 
@@ -254,7 +261,7 @@ describe Rory::Application do
 
   describe '.use_middleware' do
     it 'adds the given middleware to the stack, retaining args and block' do
-      require_relative '../../fixture_app/lib/dummy_middleware'
+
       subject.use_middleware DummyMiddleware, :puppy do |dm|
         dm.prefix = 'a salubrious'
       end
@@ -288,6 +295,58 @@ describe Rory::Application do
     describe ".parameters_to_filter" do
       it "returns overridden parameters" do
         expect(subject.parameters_to_filter).to eq([:orcas, :noodles])
+      end
+    end
+  end
+
+  describe ".initializers" do
+    describe ".insert_after" do
+      it "inserts initializer before another" do
+        probe = []
+        Rory::Application.initializers.add("insert_after.A") { probe << "insert_after.A" }
+        Rory::Application.initializers.add("insert_after.B") { probe << "insert_after.B" }
+        Rory::Application.initializers.insert_after("insert_after.A", "insert_after.C") { probe << "insert_after.C" }
+
+        expect { subject.run_initializers }.to change { probe }.from([]).
+          to(%w(insert_after.A insert_after.C insert_after.B))
+      end
+    end
+
+    describe ".add" do
+      it "runs the code inside any initializer block" do
+        probe = :initializers_not_run
+        Rory::Application.initializers.add "add.test" do
+          probe = :was_run
+        end
+        expect { subject.run_initializers }.to change { probe }.from(:initializers_not_run).to(:was_run)
+      end
+
+      it "passes the app instance to the block" do
+        probe = :block_not_called
+        Rory::Application.initializers.add "add.test_passes_app" do |app|
+          probe = :block_called
+          expect(app.class.superclass).to eq Rory::Application
+        end
+        expect { subject.run_initializers }.to change { probe }.from(:block_not_called).to(:block_called)
+      end
+    end
+  end
+
+  describe "#middleware" do
+    before { subject.middleware.clear }
+
+    describe "#insert_before" do
+      it "places the middleware order right after the given class" do
+        subject.instance.instance_variable_set(:@request_logging, :true)
+        Rory::Application.initializers.add "insert_before.dummy_middleware" do |app|
+          app.middleware.insert_before Rory::RequestId, DummyMiddleware, :puppy
+        end
+        subject.run_initializers
+        expect(subject.middleware.map(&:klass)).to eq [DummyMiddleware,
+                                                       Rory::RequestId,
+                                                       Rack::PostBodyContentTypeParser,
+                                                       Rack::CommonLogger,
+                                                       Rory::RequestParameterLogger]
       end
     end
   end
