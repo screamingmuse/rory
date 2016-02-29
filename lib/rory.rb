@@ -9,6 +9,7 @@ require 'rory/dispatcher'
 require 'rory/route'
 require 'rory/support'
 require 'rory/controller'
+require 'rory/version'
 
 module Rory
   class << self
