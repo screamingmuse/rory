@@ -1,3 +1,5 @@
+require "forwardable"
+
 module Rory
   class Initializers
     class Initializer
