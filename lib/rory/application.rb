@@ -6,6 +6,7 @@ require 'rory/middleware_stack'
 require 'rory/initializers'
 require 'rack/commonlogger'
 require 'rory/request_parameter_logger'
+require 'rory/sequel_connect'
 
 module Rory
   # Main application superclass.  Applications should subclass this class,
@@ -14,6 +15,7 @@ module Rory
   class Application
     # Exception raised if no root has been set for this Rory::Application subclass
     class RootNotConfigured < StandardError; end
+    include SequelConnect
 
     attr_reader :db, :db_config
     attr_accessor :config_path
@@ -107,12 +109,6 @@ module Rory
       YAML.load_file(
         File.expand_path(File.join(config_path, "#{config_type}.yml"))
       )
-    end
-
-    def connect_db(environment = ENV['RORY_ENV'])
-      @db_config = load_config_data(:database)
-      @db = Sequel.connect(@db_config[environment.to_s])
-      @db.loggers << logger
     end
 
     def use_middleware(*args, &block)
