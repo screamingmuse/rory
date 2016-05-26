@@ -40,7 +40,7 @@ RSpec.describe Rory::Application do
     end
   end
 
-  describe ".configure" do
+  describe "#configure" do
     it 'yields the given block to self' do
       subject.configure do |c|
         expect(c).to eq(subject.instance)
@@ -103,7 +103,7 @@ RSpec.describe Rory::Application do
     end
   end
 
-  describe ".call" do
+  describe "#call" do
     it "calls the stack with the given environment" do
       stack = double
       allow(stack).to receive(:call).with(:the_env).and_return(:expected)
@@ -112,7 +112,7 @@ RSpec.describe Rory::Application do
     end
   end
 
-  describe ".log_file" do
+  describe "#log_file" do
     it "creates the log file directory if it does not exist" do
       file = double(:sync= => true)
       allow(File).to receive(:exists?).and_return(false)
@@ -129,7 +129,7 @@ RSpec.describe Rory::Application do
     end
   end
 
-  describe ".logger" do
+  describe "#logger" do
     it "returns a logger" do
       logger = double
       allow_any_instance_of(subject).to receive(:log_file)
@@ -138,7 +138,7 @@ RSpec.describe Rory::Application do
     end
   end
 
-  describe ".turn_off_request_logging!" do
+  describe "#turn_off_request_logging!" do
     it "resets stack and turns off request logging" do
       subject.initializer_default_middleware
       expect(subject.request_logging_on?).to eq(true)
@@ -148,7 +148,7 @@ RSpec.describe Rory::Application do
     end
   end
 
-  describe ".filter_parameters" do
+  describe "#filter_parameters" do
     it "resets stack and sets parameters to filter" do
       expect(subject.instance).to receive(:reset_stack)
       subject.filter_parameters :dog, :kitty
@@ -156,7 +156,7 @@ RSpec.describe Rory::Application do
     end
   end
 
-  describe ".reset_stack" do
+  describe "#reset_stack" do
     it "clears memoization of stack" do
       stack = subject.stack
       expect(subject.stack).to eq(stack)
@@ -165,7 +165,7 @@ RSpec.describe Rory::Application do
     end
   end
 
-  describe ".stack" do
+  describe "#stack" do
     it "returns a rack builder instance with configured middleware" do
       builder = double
       allow(subject.instance).to receive(:dispatcher).
@@ -178,13 +178,33 @@ RSpec.describe Rory::Application do
     end
   end
 
-  describe ".parameters_to_filter" do
+  describe "#parameters_to_filter" do
     it "returns [:password] by default" do
       expect(subject.parameters_to_filter).to eq([:password])
     end
   end
 
-  describe ".load_config_data" do
+  describe "#initializer_default_middleware" do
+
+    before { subject.initializer_default_middleware }
+
+    it "adds middleware when request logging is on" do
+      allow(subject.instance).to receive(:parameters_to_filter).and_return([:horses])
+      allow(subject.instance).to receive(:logger).and_return(:the_logger)
+      expect(subject.instance).to receive(:use_middleware).with(Rory::RequestId, :uuid_prefix => Rory::Support.tokenize(test_rory_app_name))
+      expect(subject.instance).to receive(:use_middleware).with(Rack::PostBodyContentTypeParser)
+      expect(subject.instance).to receive(:use_middleware).with(Rack::CommonLogger, :the_logger)
+      expect(subject.instance).to receive(:use_middleware).with(Rory::RequestParameterLogger, :the_logger, :filters => [:horses])
+      subject.run_initializers
+    end
+
+    it "does not add middleware when request logging is off" do
+      subject.instance.turn_off_request_logging!
+      expect(Rory::Application.initializers.count).to eq 0
+    end
+  end
+
+  describe "#load_config_data" do
     it "returns parsed yaml file with given name from directory at config_path" do
       allow_any_instance_of(subject).to receive(:config_path).and_return('Africa the Great')
       allow(YAML).to receive(:load_file).with(
@@ -194,7 +214,7 @@ RSpec.describe Rory::Application do
     end
   end
 
-  describe ".connect_db" do
+  describe "#connect_db" do
     it "sets up sequel connection to DB from YAML file" do
       config = { 'development' => :expected }
       logger_array = []
@@ -206,7 +226,7 @@ RSpec.describe Rory::Application do
     end
   end
 
-  describe ".spin_up" do
+  describe "#spin_up" do
     it "connects the database" do
       expect_any_instance_of(Rory::Application).to receive(:connect_db)
       Rory::Application.spin_up
@@ -257,7 +277,7 @@ RSpec.describe Rory::Application do
 
   context "with fixture application" do
     subject { Fixture::Application }
-    describe ".routes" do
+    describe "#routes" do
       it "generates a collection of routing objects from route configuration" do
         expect(subject.routes).to eq [
           Rory::Route.new('foo/:id/bar', :to => 'foo#bar', :methods => [:get, :post]),
@@ -272,7 +292,7 @@ RSpec.describe Rory::Application do
       end
     end
 
-    describe ".parameters_to_filter" do
+    describe "#parameters_to_filter" do
       it "returns overridden parameters" do
         expect(subject.parameters_to_filter).to eq([:orcas, :noodles])
       end
@@ -280,7 +300,7 @@ RSpec.describe Rory::Application do
   end
 
   describe ".initializers" do
-    describe ".insert_after" do
+    describe "#insert_after" do
       it "inserts initializer before another" do
         probe = []
         Rory::Application.initializers.add("insert_after.A") { probe << "insert_after.A" }
@@ -292,7 +312,7 @@ RSpec.describe Rory::Application do
       end
     end
 
-    describe ".add" do
+    describe "#add" do
       it "runs the code inside any initializer block" do
         probe = :initializers_not_run
         Rory::Application.initializers.add "add.test" do
