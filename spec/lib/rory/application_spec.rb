@@ -140,7 +140,7 @@ RSpec.describe Rory::Application do
 
   describe ".turn_off_request_logging!" do
     it "resets stack and turns off request logging" do
-      subject.instance.instance_variable_set(:@request_logging, :true)
+      subject.initializer_default_middleware
       expect(subject.request_logging_on?).to eq(true)
       expect(subject.instance).to receive(:reset_stack)
       subject.turn_off_request_logging!
@@ -172,7 +172,6 @@ RSpec.describe Rory::Application do
         and_return(:the_dispatcher)
       allow(Rack::Builder).to receive(:new).and_return(builder)
       subject.use_middleware :horse
-      expect(subject.instance).to receive(:request_middleware).with(no_args)
       expect(builder).to receive(:use).with(:horse)
       expect(builder).to receive(:run).with(:the_dispatcher)
       expect(subject.stack).to eq(builder)
@@ -182,25 +181,6 @@ RSpec.describe Rory::Application do
   describe ".parameters_to_filter" do
     it "returns [:password] by default" do
       expect(subject.parameters_to_filter).to eq([:password])
-    end
-  end
-
-  describe ".use_default_middleware" do
-    it "adds middleware when request logging is on" do
-      allow(subject.instance).to receive(:request_logging_on?).and_return(true)
-      allow(subject.instance).to receive(:parameters_to_filter).and_return([:horses])
-      allow(subject.instance).to receive(:logger).and_return(:the_logger)
-      expect(subject.instance).to receive(:use_middleware).with(Rory::RequestId, :uuid_prefix => Rory::Support.tokenize(test_rory_app_name))
-      expect(subject.instance).to receive(:use_middleware).with(Rack::PostBodyContentTypeParser)
-      expect(subject.instance).to receive(:use_middleware).with(Rack::CommonLogger, :the_logger)
-      expect(subject.instance).to receive(:use_middleware).with(Rory::RequestParameterLogger, :the_logger, :filters => [:horses])
-      subject.request_middleware
-    end
-
-    it "does not add middleware when request logging is off" do
-      allow(subject.instance).to receive(:request_logging_on?).and_return(false)
-      expect(subject.instance).to receive(:use_middleware).never
-      subject.request_middleware
     end
   end
 
@@ -235,22 +215,22 @@ RSpec.describe Rory::Application do
 
   describe '.auto_require_paths' do
     after(:each) do
-      subject.instance.instance_variable_set(:@auto_require_paths, nil)
+      subject.instance.auto_require_paths = nil
     end
 
     it 'includes models, controllers, and helpers by default' do
-      expect(subject.auto_require_paths).to eq(['models', 'controllers', 'helpers'])
+      expect(subject.auto_require_paths).to eq(%w(models controllers helpers))
     end
 
     it 'accepts new paths' do
       subject.auto_require_paths << 'chocolates'
-      expect(subject.auto_require_paths).to eq(['models', 'controllers', 'helpers', 'chocolates'])
+      expect(subject.auto_require_paths).to eq(%w(models controllers helpers chocolates))
     end
   end
 
   describe '.require_all_files' do
     it 'requires all files in auto_require_paths' do
-      allow_any_instance_of(subject).to receive(:auto_require_paths).and_return(['goats', 'rhubarbs'])
+      allow_any_instance_of(subject).to receive(:auto_require_paths).and_return(%w(goats rhubarbs))
       [:goats, :rhubarbs].each do |folder|
         expect(Rory::Support).to receive(:require_all_files_in_directory).
           with(Pathname.new(subject.root).join("#{folder}"))
@@ -337,7 +317,7 @@ RSpec.describe Rory::Application do
 
     describe "#insert_before" do
       it "places the middleware order right after the given class" do
-        subject.instance.instance_variable_set(:@request_logging, :true)
+        subject.initializer_default_middleware
         Rory::Application.initializers.add "insert_before.dummy_middleware" do |app|
           app.middleware.insert_before Rory::RequestId, DummyMiddleware, :puppy
         end

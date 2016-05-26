@@ -7,6 +7,7 @@ require 'rory/initializers'
 require 'rack/commonlogger'
 require 'rory/request_parameter_logger'
 require 'rory/sequel_connect'
+require 'rory/logging'
 require 'rory/default_initializers/request_middleware'
 
 module Rory
@@ -17,16 +18,17 @@ module Rory
     # Exception raised if no root has been set for this Rory::Application subclass
     class RootNotConfigured < StandardError; end
     include SequelConnect
+    include Logging
 
     attr_reader :db, :db_config
     attr_accessor :config_path
+    attr_writer :auto_require_paths
 
     class << self
       private :new
       attr_reader :root
 
       def inherited(subclass)
-        super
         Rory.application = subclass.instance
       end
 
@@ -75,18 +77,12 @@ module Rory
       @config_path ||= root_path.join('config')
     end
 
-    def log_path
-      @log_path ||= root_path.join('log')
-    end
-
     def set_routes(&block)
       @routes = RouteMapper.set_routes(&block)
     end
 
     def routes
-      unless @routes
-        load(File.join(config_path, 'routes.rb'))
-      end
+      load(File.join(config_path, 'routes.rb')) unless @routes
       @routes
     end
 
@@ -164,15 +160,6 @@ module Rory
 
     def call(env)
       stack.call(env)
-    end
-
-    def log_file
-      Dir.mkdir(log_path) unless File.exists?(log_path)
-      File.open(log_path.join("#{ENV['RORY_ENV']}.log"), 'a').tap { |file| file.sync = true }
-    end
-
-    def logger
-      @logger ||= Logger.new(log_file)
     end
   end
 end
