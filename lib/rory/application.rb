@@ -7,6 +7,7 @@ require 'rory/initializers'
 require 'rack/commonlogger'
 require 'rory/request_parameter_logger'
 require 'rory/sequel_connect'
+require 'rory/default_initializers/request_middleware'
 
 module Rory
   # Main application superclass.  Applications should subclass this class,
@@ -50,15 +51,7 @@ module Rory
       def root=(root_path)
         $:.unshift @root = Pathname.new(root_path).realpath
       end
-
-      def initializer_default_middleware
-        Rory::Application.initializers.add "rory.request_middleware" do |app|
-          app.request_middleware
-        end
-      end
     end
-
-    initializer_default_middleware
 
     def auto_require_paths
       @auto_require_paths ||= %w(models controllers helpers)
@@ -124,12 +117,12 @@ module Rory
     end
 
     def request_logging_on?
-      @request_logging != false
+      !!Rory::Application.initializers.detect{|init| init.name == "rory.request_middleware" }
     end
 
     def turn_off_request_logging!
       reset_stack
-      @request_logging = false
+      Rory::Application.initializers.delete("rory.request_middleware")
     end
 
     def parameters_to_filter
@@ -149,13 +142,11 @@ module Rory
       Support.tokenize(self.class.name.gsub("::Application", ""))
     end
 
-    def request_middleware
-      return unless request_logging_on?
-      use_middleware Rory::RequestId, :uuid_prefix => uuid_prefix
-      use_middleware Rack::PostBodyContentTypeParser
-      use_middleware Rack::CommonLogger, logger
-      use_middleware Rory::RequestParameterLogger, logger, :filters => parameters_to_filter
+    def initializer_default_middleware
+      Rory.initialize_request_middleware
     end
+
+    initializer_default_middleware
 
     def run_initializers
       Rory::Application.initializers.run(self)
