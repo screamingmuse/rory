@@ -113,12 +113,12 @@ module Rory
     end
 
     def request_logging_on?
-      !!Rory::Application.initializers.detect{|init| init.name == "rory.request_middleware" }
+      !!Rory::Application.initializers.detect{|init| init.name == "rory.request_logging_middleware" }
     end
 
     def turn_off_request_logging!
       reset_stack
-      Rory::Application.initializers.delete("rory.request_middleware")
+      Rory::Application.initializers.delete("rory.request_logging_middleware")
     end
 
     def parameters_to_filter
@@ -139,7 +139,8 @@ module Rory
     end
 
     def initializer_default_middleware
-      Rory.initialize_request_middleware
+      Rory::RequestMiddleware.initialize_request_id
+      Rory::RequestMiddleware.initialize_logging
     end
 
     initializer_default_middleware

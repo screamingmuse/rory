@@ -16,7 +16,8 @@ RSpec.describe Rory::Application do
 
   before do
     Rory::Application.initializers.clear
-    Rory::Application.initializer_default_middleware
+    Rory::Application.initializers.clear
+    Rory::Application.middleware.clear
   end
 
   describe ".root=" do
@@ -185,7 +186,6 @@ RSpec.describe Rory::Application do
   end
 
   describe "#initializer_default_middleware" do
-
     before { subject.initializer_default_middleware }
 
     it "adds middleware when request logging is on" do
@@ -200,7 +200,7 @@ RSpec.describe Rory::Application do
 
     it "does not add middleware when request logging is off" do
       subject.instance.turn_off_request_logging!
-      expect(Rory::Application.initializers.count).to eq 0
+      expect(Rory::Application.initializers.map(&:name)).to eq ["rory.request_id_middleware"]
     end
   end
 
@@ -333,7 +333,10 @@ RSpec.describe Rory::Application do
   end
 
   describe "#middleware" do
-    before { subject.middleware.clear }
+    before do
+      subject.initializers.clear
+      subject.middleware.clear
+    end
 
     describe "#insert_before" do
       it "places the middleware order right after the given class" do
