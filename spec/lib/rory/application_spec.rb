@@ -16,7 +16,6 @@ RSpec.describe Rory::Application do
 
   before do
     Rory::Application.initializers.clear
-    Rory::Application.initializers.clear
     Rory::Application.middleware.clear
   end
 
@@ -333,11 +332,6 @@ RSpec.describe Rory::Application do
   end
 
   describe "#middleware" do
-    before do
-      subject.initializers.clear
-      subject.middleware.clear
-    end
-
     describe "#insert_before" do
       it "places the middleware order right after the given class" do
         subject.initializer_default_middleware
