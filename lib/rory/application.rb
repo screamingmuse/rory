@@ -138,12 +138,12 @@ module Rory
       Support.tokenize(self.class.name.gsub("::Application", ""))
     end
 
-    def initializer_default_middleware
+    def initialize_default_middleware
       Rory::RequestMiddleware.initialize_request_id
       Rory::RequestMiddleware.initialize_logging
     end
 
-    initializer_default_middleware
+    initialize_default_middleware
 
     def run_initializers
       Rory::Application.initializers.run(self)

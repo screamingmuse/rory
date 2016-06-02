@@ -140,7 +140,7 @@ RSpec.describe Rory::Application do
 
   describe "#turn_off_request_logging!" do
     it "resets stack and turns off request logging" do
-      subject.initializer_default_middleware
+      subject.initialize_default_middleware
       expect(subject.request_logging_on?).to eq(true)
       expect(subject.instance).to receive(:reset_stack)
       subject.turn_off_request_logging!
@@ -185,7 +185,7 @@ RSpec.describe Rory::Application do
   end
 
   describe "#initializer_default_middleware" do
-    before { subject.initializer_default_middleware }
+    before { subject.initialize_default_middleware }
 
     it "adds middleware when request logging is on" do
       allow(subject.instance).to receive(:parameters_to_filter).and_return([:horses])
@@ -334,7 +334,7 @@ RSpec.describe Rory::Application do
   describe "#middleware" do
     describe "#insert_before" do
       it "places the middleware order right after the given class" do
-        subject.initializer_default_middleware
+        subject.initialize_default_middleware
         Rory::Application.initializers.add "insert_before.dummy_middleware" do |app|
           app.middleware.insert_before Rory::RequestId, DummyMiddleware, :puppy
         end
