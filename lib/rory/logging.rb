@@ -1,3 +1,5 @@
+require 'rory/logger'
+
 module Rory
   module Logging
     attr_writer :logger, :log_file, :log_path

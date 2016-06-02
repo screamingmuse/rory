@@ -1,3 +1,7 @@
+require 'rack/commonlogger'
+require 'rory/request_parameter_logger'
+require 'rory/request_id'
+
 module Rory
   module RequestMiddleware
     class << self
