@@ -24,12 +24,40 @@ RSpec.describe Rory::Initializers do
     end
   end
 
+  describe "#insert_before.or_add" do
+    it "adds an item at certain point after a given initializer" do
+      subject.add("test.1insert_before") {}
+      subject.insert_before.or_add("test.1insert_before", "test.2insert_before") {}
+      expect(subject.initializers.map(&:name)).to eq %w(test.2insert_before test.1insert_before)
+    end
+
+    it "pushes an item on the list to be loaded when no initializer is found" do
+      subject.insert_before.or_add("test.1insert_before", "test.2insert_before") {}
+      expect(subject.initializers.map(&:name)).to eq %w(test.2insert_before)
+    end
+  end
+
   describe "#insert_after" do
     it "adds an item at certain point after a given initializer" do
       subject.add("test.1insert_after") {}
       subject.add("test.2insert_after") {}
       subject.insert_after("test.1insert_after", "test.3insert_after") {}
       expect(subject.initializers.map(&:name)).to eq %w(test.1insert_after test.3insert_after test.2insert_after)
+    end
+  end
+
+  describe "#insert_after.or_add" do
+    it "adds an item at certain point after a given initializer" do
+      subject.add("test.1insert_after") {}
+      subject.add("test.2insert_after") {}
+      subject.insert_after.or_add("test.1insert_after", "test.3insert_after") {}
+      expect(subject.initializers.map(&:name)).to eq %w(test.1insert_after test.3insert_after test.2insert_after)
+    end
+
+    it "pushes an item on the list to be loaded when no initializer is found" do
+      subject.add("test.2insert_after") {}
+      subject.insert_after.or_add("test.1insert_after", "test.3insert_after") {}
+      expect(subject.initializers.map(&:name)).to eq %w(test.2insert_after test.3insert_after)
     end
   end
 
@@ -42,7 +70,7 @@ RSpec.describe Rory::Initializers do
   end
 
   describe "#add" do
-    it "push an item on the list to be loaded" do
+    it "pushes an item on the list to be loaded" do
       subject.add("test.1add") {}
       subject.add("test.2add") {}
       expect(subject.initializers.map(&:name)).to eq %w(test.1add test.2add)

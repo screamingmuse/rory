@@ -42,8 +42,7 @@ module Rory
     attr_accessor :middlewares
     def_delegators :middlewares, :each, :clear, :size, :last, :first, :[]
 
-    def initialize(on_change: -> {})
-
+    def initialize
       @middlewares = []
       yield(self) if block_given?
     end
@@ -52,16 +51,35 @@ module Rory
       middlewares.unshift(build_middleware(klass, args, block))
     end
 
-    def insert(index, klass, *args, &block)
-      index = assert_index(index, :before)
-      middlewares.insert(index, build_middleware(klass, args, block))
+    def insert(*args, &block)
+      if args.empty?
+        OrAdd.new(method(:_insert), method(:use))
+      else
+        _insert(*args, &block)
+      end
     end
 
     alias_method :insert_before, :insert
 
-    def insert_after(index, *args, &block)
-      index = assert_index(index, :after)
-      insert(index + 1, *args, &block)
+    def insert_after(*args, &block)
+      if args.empty?
+        OrAdd.new(method(:_insert_after), method(:use))
+      else
+        _insert_after(*args, &block)
+      end
+    end
+
+    class OrAdd
+      def initialize(insert, use)
+        @insert = insert
+        @use    = use
+      end
+
+      def or_add(*args, &block)
+        @insert.call(*args, &block)
+      rescue MiddlewareNotFound
+        @use.call(*args, &block)
+      end
     end
 
     def delete(target)
@@ -74,9 +92,20 @@ module Rory
 
     private
 
-    def assert_index(index, where)
+    def _insert(index, klass, *args, &block)
+      index = assert_index(index, :before, klass)
+      middlewares.insert(index, build_middleware(klass, args, block))
+    end
+
+    def _insert_after(index, klass, *args, &block)
+      index = assert_index(index, :after, klass)
+      insert(index + 1, klass, *args, &block)
+    end
+
+    MiddlewareNotFound = Class.new(StandardError)
+    def assert_index(index, where, for_middleware)
       i     = index.is_a?(Integer) ? index : middlewares.index { |m| m.klass == index }
-      raise "No such middleware to insert #{where}: #{index.inspect}" unless i
+      raise MiddlewareNotFound, "No such middleware to insert #{where}: #{index.inspect} for #{for_middleware.name}" unless i
       i
     end
 
