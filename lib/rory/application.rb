@@ -96,10 +96,6 @@ module Rory
       yield self
     end
 
-    def spin_up
-      connect_db
-    end
-
     def load_config_data(config_type)
       YAML.load_file(
         File.expand_path(File.join(config_path, "#{config_type}.yml"))
@@ -168,6 +164,7 @@ module Rory
     def call(env)
       stack.call(env)
     end
+
     private
 
     def warmup_check
