@@ -49,6 +49,16 @@ module Rory
       def root=(root_path)
         $:.unshift @root = Pathname.new(root_path).realpath
       end
+
+      def warmup
+        self.warmed_up = true
+        run_initializers
+      end
+
+      attr_writer :warmed_up
+      def warmed_up?
+        !!@warmed_up
+      end
     end
 
     def auto_require_paths
@@ -147,7 +157,7 @@ module Rory
 
     def stack
       @stack ||= Rack::Builder.new.tap { |builder|
-        run_initializers
+        warmup_check
         middleware.each do |m|
           builder.use m.klass, *m.args, &m.block
         end
@@ -157,6 +167,15 @@ module Rory
 
     def call(env)
       stack.call(env)
+    end
+    private
+
+    def warmup_check
+      unless self.class.warmed_up?
+        logger.warn("#{self.class.name} was not warmed up before the first request. "\
+                    "Call #{self.class.name}.warmup on boot to ensure a quick first response.")
+        self.class.warmup
+      end
     end
   end
 end

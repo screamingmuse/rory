@@ -291,6 +291,28 @@ RSpec.describe Rory::Application do
       end
     end
 
+    include Rack::Test::Methods
+    def app
+      Fixture::Application
+    end
+
+    context "when app is warmed up" do
+      it "does not log a warning" do
+        Fixture::Application.warmup
+        expect(subject.logger).to_not receive(:warn)
+        get 'for_reals/switching'
+      end
+    end
+
+    context "when app not is warmed up" do
+      it "does log a warning" do
+        Fixture::Application.warmed_up = nil
+        warm_msg = "Fixture::Application was not warmed up before the first request. Call Fixture::Application.warmup on boot to ensure a quick first response."
+        expect(Fixture::Application.logger).to receive(:warn).with(warm_msg)
+        get 'for_reals/switching'
+      end
+    end
+
     describe "#parameters_to_filter" do
       it "returns overridden parameters" do
         expect(subject.parameters_to_filter).to eq([:orcas, :noodles])
