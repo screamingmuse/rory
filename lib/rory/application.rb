@@ -34,7 +34,7 @@ module Rory
 
       # @return [Rory::Initializers]
       def initializers
-        @initializers ||= Initializers.new
+        @@initializers ||= Initializers.new
       end
 
       def respond_to?(method, private=false)

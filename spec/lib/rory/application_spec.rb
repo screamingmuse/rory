@@ -329,6 +329,11 @@ RSpec.describe Rory::Application do
         expect { subject.run_initializers }.to change { probe }.from(:block_not_called).to(:block_called)
       end
     end
+
+    it "state is shared between Rory::Application and {AppName}::Application" do
+      Rory::Application.initializers.add("add.test") {}
+      expect(subject.initializers.map(&:name)).to eq(["add.test"])
+    end
   end
 
   describe "#middleware" do
