@@ -32,7 +32,7 @@ EOF
   s.add_runtime_dependency 'rack-contrib', '~> 1.2'
   s.add_runtime_dependency 'sequel', '~> 4.0'
   s.add_runtime_dependency 'thin', '~> 1.0'
-  s.add_runtime_dependency 'thread-inheritable_attributes', '~> 0.1'
+  s.add_runtime_dependency 'thread-inheritable_attributes', '~> 0.2'
 
   s.add_development_dependency 'rake', '~> 10.4'
   s.add_development_dependency 'rspec', '~> 3'
