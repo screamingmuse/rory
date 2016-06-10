@@ -48,8 +48,9 @@ module Rory
     end
 
     def dispatch
-      if controller
-        controller.present
+      _controller = controller
+      if _controller
+        _controller.present
       else
         render_not_found
       end
@@ -69,10 +70,18 @@ module Rory
   private
 
     def controller
-      if klass = controller_class
+      if (klass = controller_class)
         @routing.merge!(:dispatcher => self)
+        log_request
         klass.new(request, @routing, @app)
       end
+    end
+
+    def log_request
+      (@app.controller_logger || Proc.new {}).call(controller: @routing[:route].controller,
+                                                   action:     @routing[:route].action,
+                                                   params:     @request.params,
+                                                   path:       full_path)
     end
 
     def controller_class

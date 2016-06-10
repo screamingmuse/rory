@@ -194,12 +194,15 @@ RSpec.describe Rory::Application do
       expect(subject.instance).to receive(:use_middleware).with(Rack::PostBodyContentTypeParser)
       expect(subject.instance).to receive(:use_middleware).with(Rack::CommonLogger, :the_logger)
       expect(subject.instance).to receive(:use_middleware).with(Rory::RequestParameterLogger, :the_logger, :filters => [:horses])
+      expect(subject.instance).to receive(:controller_logger=) do |logger|
+        expect(logger).to be_an_instance_of(Rory::Controller::RequestLogger)
+      end
       subject.run_initializers
     end
 
     it "does not add middleware when request logging is off" do
       subject.instance.turn_off_request_logging!
-      expect(Rory::Application.initializers.map(&:name)).to eq ["rory.request_id_middleware"]
+      expect(Rory::Application.initializers.map(&:name)).to eq ["rory.post_body_type_parser", "rory.request_id_middleware"]
     end
   end
 
@@ -366,11 +369,11 @@ RSpec.describe Rory::Application do
           app.middleware.insert_before Rory::RequestId, DummyMiddleware, :puppy
         end
         subject.run_initializers
-        expect(subject.middleware.map(&:klass)).to eq [DummyMiddleware,
-                                                       Rory::RequestId,
-                                                       Rack::PostBodyContentTypeParser,
+        expect(subject.middleware.map(&:klass)).to eq [Rack::PostBodyContentTypeParser,
                                                        Rack::CommonLogger,
-                                                       Rory::RequestParameterLogger]
+                                                       Rory::RequestParameterLogger,
+                                                       DummyMiddleware,
+                                                       Rory::RequestId]
       end
     end
   end

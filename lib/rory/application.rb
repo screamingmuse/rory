@@ -17,7 +17,8 @@ module Rory
     include Logging
 
     attr_reader :db, :db_config
-    attr_accessor :config_path
+    attr_accessor :config_path, :controller_logger
+
     attr_writer :auto_require_paths
 
     class << self
@@ -115,12 +116,14 @@ module Rory
     end
 
     def request_logging_on?
-      !!Rory::Application.initializers.detect{|init| init.name == "rory.request_logging_middleware" }
+      !!(Rory::Application.initializers.detect { |init| init.name == "rory.request_logging_middleware" } ||
+        Rory::Application.initializers.detect { |init| init.name == "rory.controller_logger" })
     end
 
     def turn_off_request_logging!
       reset_stack
       Rory::Application.initializers.delete("rory.request_logging_middleware")
+      Rory::Application.initializers.delete("rory.controller_logger")
     end
 
     def parameters_to_filter
@@ -141,8 +144,7 @@ module Rory
     end
 
     def initialize_default_middleware
-      Rory::RequestMiddleware.initialize_request_id
-      Rory::RequestMiddleware.initialize_logging
+      Rory::RequestMiddleware.initialize_default_middleware
     end
 
     initialize_default_middleware

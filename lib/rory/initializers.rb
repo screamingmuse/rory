@@ -34,7 +34,7 @@ module Rory
 
     # @!macro add
     #   @param [String] name the reference name of the initializer
-    #   @yield [app] block the code to be run for the initializer
+    #   @yield [Rory::Application] block the code to be run for the initializer
 
     ##
     # @!macro add
@@ -45,13 +45,13 @@ module Rory
     # @!macro insert
     #   @param [String, Integer] index either an index or a string reference
     #   @param [String] name the reference name of the initializer
-    #   @yield [app] block the code to be run for the initializer
+    #   @yield [Rory::Application] block the code to be run for the initializer
     #   @raise [NoInitializerFound] when reference name is not found
 
     # @!macro insert_optional
     #   @param [String, Integer] index either an index or a string reference
     #   @param [String] name the reference name of the initializer
-    #   @yield [app] block the code to be run for the initializer
+    #   @yield [Rory::Application] block the code to be run for the initializer
     #   @return [OrAdd, #or_add] Try to insert after but if that initializer reference cannot be found add on to the end.
     #   @example
     #     @method "init_name", "new_init" do |app|

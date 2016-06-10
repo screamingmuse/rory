@@ -1,9 +1,9 @@
 describe Rory::Controller do
   subject { Rory::Controller.new(@request, @routing) }
 
-  before :each do
+  before do
     @routing = {
-      :route => Rory::Route.new('', :to => 'test#letsgo')
+      :route => Rory::Route.new('the path', :to => 'test#letsgo')
     }
 
     @request = double('Rack::Request', {
