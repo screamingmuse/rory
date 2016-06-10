@@ -299,6 +299,10 @@ RSpec.describe Rory::Application do
       Fixture::Application
     end
 
+    before do
+      Fixture::Application.reset_stack
+    end
+
     context "when app is warmed up" do
       it "does not log a warning" do
         Fixture::Application.warmup
@@ -309,7 +313,6 @@ RSpec.describe Rory::Application do
 
     context "when app not is warmed up" do
       it "does log a warning" do
-        Fixture::Application.warmed_up = nil
         warm_msg = "Fixture::Application was not warmed up before the first request. Call Fixture::Application.warmup on boot to ensure a quick first response."
         expect(Fixture::Application.logger).to receive(:warn).with(warm_msg)
         get 'for_reals/switching'

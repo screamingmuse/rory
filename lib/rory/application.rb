@@ -136,6 +136,7 @@ module Rory
     end
 
     def reset_stack
+      self.class.warmed_up = nil
       @stack = nil
     end
 
