@@ -19,5 +19,9 @@ module Rory
       app = application
       app && app.root
     end
+
+    def env
+      ENV["RORY_ENV"]
+    end
   end
 end

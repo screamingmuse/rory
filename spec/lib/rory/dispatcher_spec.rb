@@ -1,5 +1,6 @@
 describe Rory::Dispatcher do
-  subject { Rory::Dispatcher.new(request, Fixture::Application) }
+  subject { Rory::Dispatcher.new(request, app) }
+  let(:app) { Fixture::Application }
   let(:request) { {} }
 
   describe "#extension" do
@@ -100,6 +101,23 @@ describe Rory::Dispatcher do
         :whatever => :yay,
         :in_scoped_controller => true # see Goose::Wombat::RabbitsController in /spec/fixture_app
       })
+    end
+
+    context "with params" do
+      let(:params) { { from_query: :value } }
+
+      it "logs the request" do
+        allow(request).to receive_messages(:path_info => "/rabbits/foo", :request_method => 'GET', :params => {}, params: params)
+        logger_called_with = :not_called
+        allow(app).to receive(:controller_logger).and_return(Proc.new { |**args| logger_called_with = args })
+        route = Rory::Route.new('rabbits', :to => 'rabbits#index', :module => 'goose/wombat')
+        allow(subject).to receive(:get_route).and_return(route)
+        subject.dispatch
+        expect(logger_called_with).to eq(:action     => "index",
+                                         :controller => "rabbits",
+                                         :params     => { :from_query => :value },
+                                         :path       => "rabbits/foo")
+      end
     end
   end
 

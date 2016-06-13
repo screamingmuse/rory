@@ -17,8 +17,8 @@ module Rory
 
     def override_method
       requested_override = request.params['_method']
-      return nil unless requested_override
-      if ['put', 'patch', 'delete'].include?(requested_override.downcase)
+      return unless requested_override
+      if %w(put patch delete).include?(requested_override.downcase)
         requested_override.downcase
       end
     end
@@ -48,8 +48,9 @@ module Rory
     end
 
     def dispatch
-      if controller
-        controller.present
+      _controller = controller
+      if _controller
+        _controller.present
       else
         render_not_found
       end
@@ -59,20 +60,28 @@ module Rory
       unless path =~ /\:\/\//
         path = "#{@request.scheme}://#{@request.host_with_port}#{path}"
       end
-      return [ 302, {'Content-type' => 'text/html', 'Location'=> path }, ['Redirecting...'] ]
+      [ 302, {'Content-type' => 'text/html', 'Location'=> path }, ['Redirecting...'] ]
     end
 
     def render_not_found
-      return [ 404, {'Content-type' => 'text/html' }, ['Four, oh, four.'] ]
+      [ 404, {'Content-type' => 'text/html' }, ['Four, oh, four.'] ]
     end
 
   private
 
     def controller
-      if klass = controller_class
+      if (klass = controller_class)
         @routing.merge!(:dispatcher => self)
+        log_request
         klass.new(request, @routing, @app)
       end
+    end
+
+    def log_request
+      (@app.controller_logger || Proc.new {}).call(controller: @routing[:route].controller,
+                                                   action:     @routing[:route].action,
+                                                   params:     @request.params,
+                                                   path:       full_path)
     end
 
     def controller_class

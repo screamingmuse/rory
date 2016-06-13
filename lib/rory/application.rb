@@ -1,11 +1,10 @@
 require 'pathname'
-require 'rory/logger'
-require 'rory/request_id'
 require 'rory/route_mapper'
 require 'rory/middleware_stack'
 require 'rory/initializers'
-require 'rack/commonlogger'
-require 'rory/request_parameter_logger'
+require 'rory/sequel_connect'
+require 'rory/logging'
+require 'rory/default_initializers/request_middleware'
 
 module Rory
   # Main application superclass.  Applications should subclass this class,
@@ -14,16 +13,19 @@ module Rory
   class Application
     # Exception raised if no root has been set for this Rory::Application subclass
     class RootNotConfigured < StandardError; end
+    include SequelConnect
+    include Logging
 
     attr_reader :db, :db_config
-    attr_accessor :config_path
+    attr_accessor :config_path, :controller_logger
+
+    attr_writer :auto_require_paths
 
     class << self
       private :new
       attr_reader :root
 
       def inherited(subclass)
-        super
         Rory.application = subclass.instance
       end
 
@@ -33,7 +35,7 @@ module Rory
 
       # @return [Rory::Initializers]
       def initializers
-        @initializers ||= Initializers.new
+        @@initializers ||= Initializers.new
       end
 
       def respond_to?(method, private=false)
@@ -49,14 +51,16 @@ module Rory
         $:.unshift @root = Pathname.new(root_path).realpath
       end
 
-      def initializer_default_middleware
-        Rory::Application.initializers.add "rory.request_middleware" do |app|
-          app.request_middleware
-        end
+      def warmup
+        self.warmed_up = true
+        run_initializers
+      end
+
+      attr_writer :warmed_up
+      def warmed_up?
+        !!@warmed_up
       end
     end
-
-    initializer_default_middleware
 
     def auto_require_paths
       @auto_require_paths ||= %w(models controllers helpers)
@@ -80,18 +84,12 @@ module Rory
       @config_path ||= root_path.join('config')
     end
 
-    def log_path
-      @log_path ||= root_path.join('log')
-    end
-
     def set_routes(&block)
       @routes = RouteMapper.set_routes(&block)
     end
 
     def routes
-      unless @routes
-        load(File.join(config_path, 'routes.rb'))
-      end
+      load(File.join(config_path, 'routes.rb')) unless @routes
       @routes
     end
 
@@ -99,20 +97,10 @@ module Rory
       yield self
     end
 
-    def spin_up
-      connect_db
-    end
-
     def load_config_data(config_type)
       YAML.load_file(
         File.expand_path(File.join(config_path, "#{config_type}.yml"))
       )
-    end
-
-    def connect_db(environment = ENV['RORY_ENV'])
-      @db_config = load_config_data(:database)
-      @db = Sequel.connect(@db_config[environment.to_s])
-      @db.loggers << logger
     end
 
     def use_middleware(*args, &block)
@@ -128,12 +116,14 @@ module Rory
     end
 
     def request_logging_on?
-      @request_logging != false
+      !!(Rory::Application.initializers.detect { |init| init.name == "rory.request_logging_middleware" } ||
+        Rory::Application.initializers.detect { |init| init.name == "rory.controller_logger" })
     end
 
     def turn_off_request_logging!
       reset_stack
-      @request_logging = false
+      Rory::Application.initializers.delete("rory.request_logging_middleware")
+      Rory::Application.initializers.delete("rory.controller_logger")
     end
 
     def parameters_to_filter
@@ -146,6 +136,7 @@ module Rory
     end
 
     def reset_stack
+      self.class.warmed_up = nil
       @stack = nil
     end
 
@@ -153,13 +144,11 @@ module Rory
       Support.tokenize(self.class.name.gsub("::Application", ""))
     end
 
-    def request_middleware
-      return unless request_logging_on?
-      use_middleware Rory::RequestId, :uuid_prefix => uuid_prefix
-      use_middleware Rack::PostBodyContentTypeParser
-      use_middleware Rack::CommonLogger, logger
-      use_middleware Rory::RequestParameterLogger, logger, :filters => parameters_to_filter
+    def initialize_default_middleware
+      Rory::RequestMiddleware.initialize_default_middleware
     end
+
+    initialize_default_middleware
 
     def run_initializers
       Rory::Application.initializers.run(self)
@@ -167,7 +156,7 @@ module Rory
 
     def stack
       @stack ||= Rack::Builder.new.tap { |builder|
-        run_initializers
+        warmup_check
         middleware.each do |m|
           builder.use m.klass, *m.args, &m.block
         end
@@ -179,13 +168,14 @@ module Rory
       stack.call(env)
     end
 
-    def log_file
-      Dir.mkdir(log_path) unless File.exists?(log_path)
-      File.open(log_path.join("#{ENV['RORY_ENV']}.log"), 'a').tap { |file| file.sync = true }
-    end
+    private
 
-    def logger
-      @logger ||= Logger.new(log_file)
+    def warmup_check
+      unless self.class.warmed_up?
+        logger.warn("#{self.class.name} was not warmed up before the first request. "\
+                    "Call #{self.class.name}.warmup on boot to ensure a quick first response.")
+        self.class.warmup
+      end
     end
   end
 end

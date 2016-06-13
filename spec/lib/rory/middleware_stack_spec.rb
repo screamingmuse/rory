@@ -41,6 +41,23 @@ RSpec.describe Rory::MiddlewareStack do
     end
   end
 
+  describe "#insert_after.or_add" do
+    it "adds an item at certain point after a given middleware" do
+      insert_after1 = double(name: "test.1insert_after")
+      subject.use(insert_after1) {}
+      subject.use(double(name: "test.2insert_after")) {}
+      subject.insert_after.or_add(insert_after1, double(name: "test.3insert_after")) {}
+      expect(middleware_order).to eq %w(test.1insert_after test.3insert_after test.2insert_after)
+    end
+
+    it "push an item on the list to be loaded when middleware not found" do
+      insert_after1 = double(name: "test.1insert_after")
+      subject.use(double(name: "test.2insert_after")) {}
+      subject.insert_after.or_add(insert_after1, double(name: "test.3insert_after")) {}
+      expect(middleware_order).to eq %w(test.2insert_after test.1insert_after)
+    end
+  end
+
   describe "#delete" do
     it "removes a given middleware from loading" do
       test_delete = double(name: "delete")
