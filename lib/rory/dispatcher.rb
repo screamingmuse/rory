@@ -17,8 +17,8 @@ module Rory
 
     def override_method
       requested_override = request.params['_method']
-      return nil unless requested_override
-      if ['put', 'patch', 'delete'].include?(requested_override.downcase)
+      return unless requested_override
+      if %w(put patch delete).include?(requested_override.downcase)
         requested_override.downcase
       end
     end
@@ -60,11 +60,11 @@ module Rory
       unless path =~ /\:\/\//
         path = "#{@request.scheme}://#{@request.host_with_port}#{path}"
       end
-      return [ 302, {'Content-type' => 'text/html', 'Location'=> path }, ['Redirecting...'] ]
+      [ 302, {'Content-type' => 'text/html', 'Location'=> path }, ['Redirecting...'] ]
     end
 
     def render_not_found
-      return [ 404, {'Content-type' => 'text/html' }, ['Four, oh, four.'] ]
+      [ 404, {'Content-type' => 'text/html' }, ['Four, oh, four.'] ]
     end
 
   private
