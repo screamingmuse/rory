@@ -238,13 +238,13 @@ RSpec.describe Rory::Application do
       subject.instance.instance_variable_set(:@auto_require_paths, nil)
     end
 
-    it 'includes models, controllers, and helpers by default' do
-      expect(subject.auto_require_paths).to eq(['models', 'controllers', 'helpers'])
+    it 'includes initializers, models, controllers, and helpers by default' do
+      expect(subject.auto_require_paths).to eq(['config/initializers', 'models', 'controllers', 'helpers'])
     end
 
     it 'accepts new paths' do
       subject.auto_require_paths << 'chocolates'
-      expect(subject.auto_require_paths).to eq(['models', 'controllers', 'helpers', 'chocolates'])
+      expect(subject.auto_require_paths).to eq(['config/initializers', 'models', 'controllers', 'helpers', 'chocolates'])
     end
   end
 

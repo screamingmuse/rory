@@ -59,7 +59,7 @@ module Rory
     initializer_default_middleware
 
     def auto_require_paths
-      @auto_require_paths ||= %w(models controllers helpers)
+      @auto_require_paths ||= %w(config/initializers models controllers helpers)
     end
 
     def require_all_files
