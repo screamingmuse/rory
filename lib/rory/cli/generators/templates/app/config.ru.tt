@@ -1,0 +1,5 @@
+ENV['RORY_ENV'] ||= ENV['RACK_ENV'] || 'development'
+
+require_relative "config/application"
+
+run <%= camelized_app_name %>::Application

@@ -27,12 +27,14 @@ EOF
                   %w(LICENSE.txt Rakefile README.md rory.gemspec)
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
+  s.bindir = "bin"
 
   s.add_runtime_dependency 'rack', '~> 1.0'
   s.add_runtime_dependency 'rack-contrib', '~> 1.2'
   s.add_runtime_dependency 'sequel', '~> 4.0'
   s.add_runtime_dependency 'thin', '~> 1.0'
   s.add_runtime_dependency 'thread-inheritable_attributes', '~> 0.1'
+  s.add_runtime_dependency 'thor', '~> 0.19'
 
   s.add_development_dependency 'rake', '~> 10.4'
   s.add_development_dependency 'rspec', '~> 3'

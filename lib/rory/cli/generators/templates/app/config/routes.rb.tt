@@ -1,0 +1,3 @@
+<%= camelized_app_name %>::Application.set_routes do
+  # match "path/with/:params", to: "controller#action", methods: [:get]
+end
