@@ -5,6 +5,8 @@ gem "thin"
 
 group :development, :test do
   gem "rake"
+<% if options[:rspec] -%>
   gem "rspec"
+<% end -%>
   gem "shotgun"
 end

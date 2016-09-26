@@ -17,7 +17,14 @@ RSpec.describe Rory::CLI::Root do
 
   describe "#new" do
     it "starts Generators::Application" do
-      subject.new
+      proxy = instance_double(Rory::CLI::Generators::Application)
+      allow(proxy).to receive(:parent_options=).with({})
+      allow(Rory::CLI::Generators::Application).to receive(:new).
+        with(["frog"], any_args).
+        and_return(proxy)
+
+      expect(proxy).to receive(:invoke_all)
+      subject.new("frog")
     end
   end
 end
