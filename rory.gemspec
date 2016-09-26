@@ -23,7 +23,7 @@ EOF
   s.required_rubygems_version = ">= 1.3.6"
 
   s.extra_rdoc_files = ["LICENSE.txt", "README.md"]
-  s.files = Dir['{lib/**/*,spec/**/*}'] +
+  s.files = Dir["lib/**/{*,.[a-z]*}"] +
                   %w(LICENSE.txt Rakefile README.md rory.gemspec)
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
