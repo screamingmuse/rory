@@ -21,4 +21,5 @@ Capybara.app = Fixture::Application
 
 RSpec.configure do |config|
   config.order = "random"
+  config.include GenerationHelpers
 end

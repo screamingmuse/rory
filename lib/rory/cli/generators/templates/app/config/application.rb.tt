@@ -1,0 +1,11 @@
+require "bundler"
+
+Bundler.require
+
+module <%= camelized_app_name %>
+  class Application < Rory::Application
+  end
+end
+
+<%= camelized_app_name %>::Application.root = File.expand_path(File.join("..", ".."), __FILE__)
+<%= camelized_app_name %>::Application.require_all_files
