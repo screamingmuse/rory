@@ -2,8 +2,19 @@ ENV["RORY_ENV"] ||= ENV["RACK_ENV"] || "development"
 
 require "bundler/setup"
 require "rory/tasks"
+<% if options[:rspec] -%>
+require "rspec/core/rake_task"
+<% end ->
 
 Rake::TaskManager.record_task_metadata = true
+
+<% if options[:rspec] -%>
+RSpec::Core::RakeTask.new(:spec) do |spec|
+  spec.pattern = FileList['spec/**/*_spec.rb']
+end
+
+task :default => :spec
+<% end ->
 
 task :environment do
   require_relative "config/application"
