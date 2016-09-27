@@ -1,5 +1,6 @@
 require "thor"
 require_relative "generate"
+require "rory/version"
 
 module Rory
   module CLI
