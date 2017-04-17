@@ -43,6 +43,7 @@ EOF
   s.add_development_dependency 'capybara', '~> 2.4'
   s.add_development_dependency 'yard', '~> 0.8'
   s.add_development_dependency 'reek', '~> 2.2'
+  s.add_development_dependency 'unparser', '0.2.4'
   s.add_development_dependency 'simplecov', '~> 0.10'
   s.add_development_dependency 'bundler', '~> 1.10'
   s.add_development_dependency 'pry', '~> 0.10'
