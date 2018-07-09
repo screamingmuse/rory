@@ -1,3 +1,5 @@
+require "securerandom"
+
 module Rory
   # Makes a unique request id available to the rory.request_id env variable (which is then accessible through
   # Rory::Request#uuid) and sends the same id to the client via the X-Request-Id header.
