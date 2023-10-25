@@ -11,6 +11,14 @@ Rory is an [MVC](http://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93control
 
 Rory was started as a self-educational project, but has evolved to the point where it is used in production environments.  Its design goals, therefore, are a moving target, but are gradually moving from "understanding the design and implementation of Rails" to "creating a lightweight, opinionated framework with Rails-like conventions."
 
+How to run Rory console in development environment
+---------------------------------------------------
+To run you rory console, write this command from terminal:
+
+```
+RAKE_ENV=development rake rory:server
+```
+
 History
 -------
 
