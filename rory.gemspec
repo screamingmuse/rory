@@ -1,50 +1,44 @@
-# -*- encoding: utf-8 -*-
-lib = File.expand_path('../lib/', __FILE__)
-$:.unshift lib unless $:.include?(lib)
+# coding: utf-8
+lib = File.expand_path('../lib', __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+require "rory/version"
 
-require 'rory/version'
+Gem::Specification.new do |spec|
+  spec.name = "rory"
+  spec.version = Rory::VERSION
+  spec.authors = ["Ravi Gadad", "Michael Irey", "David Begin", "Dustin Zeisler"]
+  spec.email = ["ravi@screamingmuse.com"]
 
-Gem::Specification.new do |s|
-  s.name = "rory"
-  s.version = Rory::VERSION
-  s.platform = Gem::Platform::RUBY
-  s.authors = ["Ravi Gadad", "Michael Irey", "David Begin", "Dustin Zeisler"]
-  s.email = ["ravi@screamingmuse.com"]
-  s.homepage = "http://github.com/screamingmuse/rory"
-  s.summary = "Another Ruby web framework. Just what the world needs."
-  s.description = <<-EOF
+  spec.summary = "Another Ruby web framework. Just what the world needs."
+  spec.homepage = "http://github.com/screamingmuse/rory"
+  spec.description = <<-EOF
 An exercise: Untangle the collusion of Rails idioms
 from my Ruby knowledge, while trying to understand some
 Rails design decisions.
 
 See http://github.com/screamingmuse/rory for more info.
 EOF
-  s.required_ruby_version     = ">= 2.1.5"
-  s.required_rubygems_version = ">= 1.3.6"
+  spec.license = "MIT"
 
-  s.extra_rdoc_files = ["LICENSE.txt", "README.md"]
-  s.files = Dir["lib/**/{*,.[a-z]*}"] +
-                  %w(LICENSE.txt Rakefile README.md rory.gemspec)
-  s.licenses = ["MIT"]
-  s.require_paths = ["lib"]
-  s.bindir = "bin"
-  s.executables << "rory"
+  spec.files = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
+  spec.bindir = "bin"
+  spec.executables = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
+  spec.require_paths = ["lib"]
 
-  s.add_runtime_dependency 'rack', '~> 1.0'
-  s.add_runtime_dependency 'rack-contrib', '~> 1.2'
-  s.add_runtime_dependency 'sequel', '~> 4.0'
-  s.add_runtime_dependency 'thin', '~> 1.0'
-  s.add_runtime_dependency 'thread-inheritable_attributes', '~> 0.1'
-  s.add_runtime_dependency 'thor', '~> 0.19'
+  spec.add_dependency "rack", "~> 2.2"
+  spec.add_dependency "rack-contrib", "~> 2.5"
+  spec.add_dependency "sequel", "~> 5.87"
+  spec.add_dependency "thin", "~> 1.8"
+  spec.add_dependency "thread-inheritable_attributes", "~> 2.0"
+  spec.add_dependency "thor", "~> 1.3"
 
-  s.add_development_dependency 'rake', '~> 10.4'
-  s.add_development_dependency 'rspec', '~> 3'
-  s.add_development_dependency 'mime-types', '~> 2.6'
-  s.add_development_dependency 'capybara', '~> 2.4'
-  s.add_development_dependency 'yard', '~> 0.8'
-  s.add_development_dependency 'reek', '~> 2.2'
-  s.add_development_dependency 'simplecov', '~> 0.10'
-  s.add_development_dependency 'bundler', '~> 1.10'
-  s.add_development_dependency 'pry', '~> 0.10'
+  spec.add_development_dependency "rake", "~> 13.2"
+  spec.add_development_dependency "rspec", "~> 3.13"
+  spec.add_development_dependency "mime-types", "~> 3.6"
+  spec.add_development_dependency "capybara", "~> 3.40"
+  spec.add_development_dependency "yard", "~> 0.9.37"
+  spec.add_development_dependency "reek", "~> 6.3"
+  spec.add_development_dependency "simplecov"
+  spec.add_development_dependency "bundler", "~> 2.4"
+  spec.add_development_dependency "pry", "~> 0.15.0"
 end
-

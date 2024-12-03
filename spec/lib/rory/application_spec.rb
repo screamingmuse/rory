@@ -115,7 +115,7 @@ RSpec.describe Rory::Application do
   describe ".log_file" do
     it "creates the log file directory if it does not exist" do
       file = double(:sync= => true)
-      allow(File).to receive(:exists?).and_return(false)
+      allow(File).to receive(:exist?).and_return(false)
       allow(Dir).to receive(:mkdir).and_return(true)
       allow(File).to receive(:open).and_return(file)
       expect(subject.log_file).to eq(file)
@@ -123,7 +123,7 @@ RSpec.describe Rory::Application do
 
     it "returns the file and does not create the log file directory if it does not exist" do
       file = double(:sync= => true)
-      allow(File).to receive(:exists?).and_return(true)
+      allow(File).to receive(:exist?).and_return(true)
       allow(File).to receive(:open).and_return(file)
       expect(subject.log_file).to eq(file)
     end
@@ -191,7 +191,7 @@ RSpec.describe Rory::Application do
       allow(subject.instance).to receive(:parameters_to_filter).and_return([:horses])
       allow(subject.instance).to receive(:logger).and_return(:the_logger)
       expect(subject.instance).to receive(:use_middleware).with(Rory::RequestId, :uuid_prefix => Rory::Support.tokenize(test_rory_app_name))
-      expect(subject.instance).to receive(:use_middleware).with(Rack::PostBodyContentTypeParser)
+      expect(subject.instance).to receive(:use_middleware).with(Rack::JSONBodyParser)
       expect(subject.instance).to receive(:use_middleware).with(Rack::CommonLogger, :the_logger)
       expect(subject.instance).to receive(:use_middleware).with(Rory::RequestParameterLogger, :the_logger, :filters => [:horses])
       subject.request_middleware
@@ -344,7 +344,7 @@ RSpec.describe Rory::Application do
         subject.run_initializers
         expect(subject.middleware.map(&:klass)).to eq [DummyMiddleware,
                                                        Rory::RequestId,
-                                                       Rack::PostBodyContentTypeParser,
+                                                       Rack::JSONBodyParser,
                                                        Rack::CommonLogger,
                                                        Rory::RequestParameterLogger]
       end
