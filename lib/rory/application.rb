@@ -4,7 +4,6 @@ require 'rory/request_id'
 require 'rory/route_mapper'
 require 'rory/middleware_stack'
 require 'rory/initializers'
-require 'rack/commonlogger'
 require 'rory/request_parameter_logger'
 
 module Rory
@@ -180,7 +179,7 @@ module Rory
     end
 
     def log_file
-      Dir.mkdir(log_path) unless File.exists?(log_path)
+      Dir.mkdir(log_path) unless File.exist?(log_path)
       File.open(log_path.join("#{ENV['RORY_ENV']}.log"), 'a').tap { |file| file.sync = true }
     end
 

@@ -115,7 +115,7 @@ RSpec.describe Rory::Application do
   describe ".log_file" do
     it "creates the log file directory if it does not exist" do
       file = double(:sync= => true)
-      allow(File).to receive(:exists?).and_return(false)
+      allow(File).to receive(:exist?).and_return(false)
       allow(Dir).to receive(:mkdir).and_return(true)
       allow(File).to receive(:open).and_return(file)
       expect(subject.log_file).to eq(file)
@@ -123,7 +123,7 @@ RSpec.describe Rory::Application do
 
     it "returns the file and does not create the log file directory if it does not exist" do
       file = double(:sync= => true)
-      allow(File).to receive(:exists?).and_return(true)
+      allow(File).to receive(:exist?).and_return(true)
       allow(File).to receive(:open).and_return(file)
       expect(subject.log_file).to eq(file)
     end

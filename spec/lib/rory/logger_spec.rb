@@ -15,8 +15,8 @@ describe Rory::Logger do
 
   let(:rory_request_id) { "1111-2222" }
 
-  before { Thread.current[:inheritable_attributes] = {:rory_request_id => rory_request_id} }
-  after { Thread.current[:inheritable_attributes] = nil }
+  before { Thread.current.set_inheritable_attribute(:rory_request_id, rory_request_id) }
+  after { Thread.current.set_inheritable_attribute(:rory_request_id, nil) }
 
   context "when tagged is empty" do
     subject { described_class.new(string_io, tagged: []) }
