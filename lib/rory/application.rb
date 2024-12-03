@@ -155,7 +155,7 @@ module Rory
     def request_middleware
       return unless request_logging_on?
       use_middleware Rory::RequestId, :uuid_prefix => uuid_prefix
-      use_middleware Rack::PostBodyContentTypeParser
+      use_middleware Rack::JSONBodyParser
       use_middleware Rack::CommonLogger, logger
       use_middleware Rory::RequestParameterLogger, logger, :filters => parameters_to_filter
     end

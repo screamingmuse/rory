@@ -191,7 +191,7 @@ RSpec.describe Rory::Application do
       allow(subject.instance).to receive(:parameters_to_filter).and_return([:horses])
       allow(subject.instance).to receive(:logger).and_return(:the_logger)
       expect(subject.instance).to receive(:use_middleware).with(Rory::RequestId, :uuid_prefix => Rory::Support.tokenize(test_rory_app_name))
-      expect(subject.instance).to receive(:use_middleware).with(Rack::PostBodyContentTypeParser)
+      expect(subject.instance).to receive(:use_middleware).with(Rack::JSONBodyParser)
       expect(subject.instance).to receive(:use_middleware).with(Rack::CommonLogger, :the_logger)
       expect(subject.instance).to receive(:use_middleware).with(Rory::RequestParameterLogger, :the_logger, :filters => [:horses])
       subject.request_middleware
@@ -344,7 +344,7 @@ RSpec.describe Rory::Application do
         subject.run_initializers
         expect(subject.middleware.map(&:klass)).to eq [DummyMiddleware,
                                                        Rory::RequestId,
-                                                       Rack::PostBodyContentTypeParser,
+                                                       Rack::JSONBodyParser,
                                                        Rack::CommonLogger,
                                                        Rory::RequestParameterLogger]
       end
